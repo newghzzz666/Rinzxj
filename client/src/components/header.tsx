@@ -44,6 +44,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
+    // 修复：直接返回 JSX，移除了导致报错的 useMemo
     return (
         <>
             {/* ===========================================================================
