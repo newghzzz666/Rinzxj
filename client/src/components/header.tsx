@@ -9,6 +9,7 @@ import { Profile, ProfileContext } from "../state/profile";
 import { Button } from "./button";
 import { IconSmall } from "./icon";
 import { Input } from "./input";
+import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
 // --- 样式常量 ---
@@ -45,17 +46,39 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return (
         <>
-            {/* 灵动岛容器：固定定位 + 响应式宽度 */}
-            <div className="fixed z-50 top-3 left-3 right-3 md:top-6 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-auto transition-all duration-300">
-                
-                {/* 岛屿本体 */}
-                <div className="flex items-center justify-between p-2 md:px-6 md:py-3 rounded-[2rem] md:rounded-full
+            {/* ===========================================================================
+               1. 移动端 Header (md:hidden) - 回归原版：贴顶、通栏、稳健
+               =========================================================================== */}
+            <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border-b border-neutral-200 dark:border-white/5 transition-colors duration-300">
+                <Padding className="px-4 py-3">
+                    <div className="flex items-center justify-between">
+                        {/* 移动端左侧 Logo */}
+                        <Link href="/" className="flex items-center gap-3">
+                            <img src={process.env.AVATAR} alt="Avatar" className="w-8 h-8 rounded-full border border-neutral-200 dark:border-neutral-700" />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold text-neutral-900 dark:text-white leading-none">
+                                    {process.env.NAME}
+                                </span>
+                            </div>
+                        </Link>
+
+                        {/* 移动端右侧：汉堡菜单 */}
+                        <MobileMenu />
+                    </div>
+                </Padding>
+            </div>
+
+            {/* ===========================================================================
+               2. 电脑端 Header (hidden md:flex) - 保持灵动岛：悬浮、高级
+               =========================================================================== */}
+            <div className="hidden md:flex fixed z-50 top-6 left-1/2 -translate-x-1/2 w-auto transition-all duration-300">
+                <div className="flex items-center justify-between px-6 py-3 rounded-full
                               bg-white/80 dark:bg-[#0a0a0a]/90 backdrop-blur-xl
                               border border-white/20 dark:border-white/10
                               shadow-lg shadow-neutral-200/20 dark:shadow-black/40
-                              min-w-0 md:min-w-[720px]">
+                              min-w-[720px]">
 
-                    {/* 1. 左侧：Logo区域 */}
+                    {/* Logo */}
                     <Link href="/" className="flex items-center gap-3 group px-2 shrink-0">
                         <div className="relative w-10 h-10 rounded-full overflow-hidden border border-neutral-200 dark:border-neutral-800">
                             <img src={process.env.AVATAR} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
@@ -64,52 +87,41 @@ export function Header({ children }: { children?: React.ReactNode }) {
                             <span className="text-base font-bold text-neutral-900 dark:text-white truncate leading-tight group-hover:text-[#FF4500] transition-colors">
                                 {process.env.NAME}
                             </span>
-                            <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider truncate hidden sm:block">
+                            <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider truncate">
                                 {process.env.DESCRIPTION}
                             </span>
                         </div>
                     </Link>
 
-                    {/* 2. 中间：桌面导航 (手机隐藏) */}
-                    <div className="hidden md:flex items-center gap-1 mx-4">
+                    {/* 桌面菜单 */}
+                    <div className="flex items-center gap-1 mx-4">
                         <NavBarItem href="/" title={t('article.title')} />
                         <NavBarItem href="/timeline" title={t('timeline')} />
                         <NavBarItem href="/moments" title={t('moments.title')} />
                         <NavBarItem href="/friends" title={t('friends.title')} />
                         <NavBarItem href="/about" title={t('about.title')} />
-                        {/* 额外子元素 */}
                         {children}
                     </div>
 
-                    {/* 3. 右侧：功能区 */}
+                    {/* 功能区 */}
                     <div className="flex items-center gap-2 shrink-0">
-                        {/* 桌面端显示搜索和语言 */}
-                        <div className="hidden md:flex items-center gap-2">
-                            <SearchButton />
-                            <LanguageSwitch />
-                        </div>
-
-                        {/* 用户头像 (响应式) */}
+                        <SearchButton />
+                        <LanguageSwitch />
+                        <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 mx-1"></div>
                         <UserAvatar profile={profile} />
-
-                        {/* 手机端菜单触发器 */}
-                        <div className="md:hidden">
-                            <MobileMenu />
-                        </div>
                     </div>
                 </div>
             </div>
 
             {/* 占位符 */}
-            <div className="h-24 md:h-32"></div>
+            <div className="h-20 md:h-32"></div>
         </>
     );
 }
 
-// --- 子组件：导航项 (简化版) ---
+// --- 子组件：桌面端导航项 ---
 function NavBarItem({ href, title, onClick }: { href: string, title: string, onClick?: () => void }) {
     const [location] = useLocation();
-    // 简单判断选中状态：当前路径以 href 开头 (除了首页 / 特殊处理)
     const isSelected = href === "/" ? location === "/" : location.startsWith(href);
 
     return (
@@ -126,7 +138,7 @@ function NavBarItem({ href, title, onClick }: { href: string, title: string, onC
     );
 }
 
-// --- 子组件：移动端菜单 (重构为纯净版) ---
+// --- 子组件：移动端菜单 (Hamburger) ---
 function MobileMenu() {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
@@ -149,22 +161,12 @@ function MobileMenu() {
             modal
             nested
             overlayStyle={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", zIndex: 1000 }}
-            contentStyle={{ width: "90%", maxWidth: "350px", border: "none", background: "transparent", padding: 0 }}
+            contentStyle={{ width: "85%", maxWidth: "300px", border: "none", background: "transparent", padding: 0 }}
         >
-            <div className="bg-white dark:bg-[#121212] rounded-[2rem] p-4 shadow-2xl border border-white/20 ring-1 ring-black/5 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
-                {/* 1. 功能网格 */}
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-neutral-50 dark:bg-neutral-900 rounded-2xl p-3 flex justify-center">
-                        <SearchButton />
-                    </div>
-                    <div className="bg-neutral-50 dark:bg-neutral-900 rounded-2xl p-3 flex justify-center">
-                        <LanguageSwitch />
-                    </div>
-                </div>
-
-                {/* 2. 导航列表 */}
+            <div className="bg-white dark:bg-[#121212] rounded-2xl p-4 shadow-2xl border border-neutral-200 dark:border-neutral-800 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+                {/* 移动端菜单内容 */}
                 <div className="flex flex-col gap-1">
-                    <div className="px-4 py-2 text-xs font-bold text-neutral-400 uppercase tracking-wider">Menu</div>
+                    <div className="px-4 py-2 text-xs font-bold text-neutral-400 uppercase tracking-wider">Navigation</div>
                     <NavBarItem href="/" title={t('article.title')} onClick={close} />
                     <NavBarItem href="/timeline" title={t('timeline')} onClick={close} />
                     <NavBarItem href="/moments" title={t('moments.title')} onClick={close} />
@@ -178,12 +180,19 @@ function MobileMenu() {
                         </>
                     )}
                 </div>
+
+                {/* 移动端功能区 */}
+                <div className="grid grid-cols-3 gap-2 border-t border-neutral-100 dark:border-neutral-800 pt-4">
+                    <div className="flex justify-center"><SearchButton /></div>
+                    <div className="flex justify-center"><LanguageSwitch /></div>
+                    <div className="flex justify-center"><UserAvatar profile={profile} /></div>
+                </div>
             </div>
         </Popup>
     );
 }
 
-// --- 功能组件：搜索按钮 ---
+// --- 功能组件：搜索 ---
 function SearchButton() {
     const { t } = useTranslation();
     const [isOpen, setOpen] = useState(false);
@@ -207,7 +216,7 @@ function SearchButton() {
                 onRequestClose={() => setOpen(false)}
                 style={MODAL_STYLE}
             >
-                <div className="bg-white dark:bg-[#121212] w-[90vw] md:w-[500px] p-2 rounded-[2rem] shadow-2xl border border-neutral-100 dark:border-neutral-800 flex items-center gap-2">
+                <div className="bg-white dark:bg-[#121212] w-[90vw] md:w-[500px] p-4 rounded-3xl shadow-2xl border border-neutral-100 dark:border-neutral-800 flex items-center gap-2">
                     <div className="flex-1">
                         <Input 
                             value={value} 
@@ -217,7 +226,7 @@ function SearchButton() {
                             onSubmit={onSearch} 
                         />
                     </div>
-                    <div className="shrink-0 mr-1">
+                    <div className="shrink-0">
                         <Button title="Go" onClick={onSearch} />
                     </div>
                 </div>
@@ -230,7 +239,6 @@ function SearchButton() {
 function LanguageSwitch() {
     const { i18n } = useTranslation();
     
-    // 简化逻辑：点击直接循环切换语言，不再弹窗
     const toggleLanguage = () => {
         const langs = ['zh-CN', 'en', 'ja', 'zh-TW'];
         const currentIdx = langs.indexOf(i18n.language) !== -1 ? langs.indexOf(i18n.language) : 0;
@@ -251,13 +259,13 @@ function UserAvatar({ profile }: { profile?: Profile }) {
     const { LoginModal, setIsOpened } = useLoginModal();
     const config = useContext(ClientConfigContext);
     
-    // 类型安全检查
-    const loginEnabled = config.get('login.enabled');
+    // 安全获取配置
+    const loginEnabled = config.get('login.enabled') as boolean;
     if (!loginEnabled) return null;
 
     if (profile?.avatar) {
         return (
-            <div className="relative group w-9 h-9 ml-1">
+            <div className="relative group w-9 h-9">
                 <img src={profile.avatar} alt="Avatar" 
                      className="w-full h-full rounded-full border border-neutral-200 dark:border-neutral-700 cursor-pointer" />
                 
@@ -275,7 +283,7 @@ function UserAvatar({ profile }: { profile?: Profile }) {
 
     return (
         <>
-            <button className={ROUND_BTN_CLASS + " ml-1"} onClick={() => setIsOpened(true)}>
+            <button className={ROUND_BTN_CLASS} onClick={() => setIsOpened(true)}>
                 <i className="ri-user-Line"></i>
             </button>
             <LoginModal />
