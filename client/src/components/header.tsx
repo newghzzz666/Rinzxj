@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -12,76 +12,59 @@ import { Input } from "./input";
 import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
-// 提取 Modal 样式为常量
-const MODAL_STYLE = {
-    content: {
-        top: "20%",
-        left: "50%",
-        right: "auto",
-        bottom: "auto",
-        marginRight: "-50%",
-        transform: "translate(-50%, -50%)",
-        padding: "0",
-        border: "none",
-        borderRadius: "16px",
-        display: "flex",
-        flexDirection: "column" as const,
-        justifyContent: "center",
-        alignItems: "center",
-        background: "none",
-    },
-    overlay: {
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        zIndex: 1000,
-    },
-};
 
 export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
-    const { t } = useTranslation();
+    const { t } = useTranslation()
 
-    return (
+    return useMemo(() => (
         <>
-            <div className="fixed top-0 left-0 right-0 z-40 transition-all duration-300 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50 dark:border-neutral-800/50">
+            {/* 修改点 1: 顶层容器
+               - 原来: fixed z-40
+               - 现在: fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50
+               作用: 固定在顶部，添加毛玻璃背景，添加底部细边框和阴影
+            */}
+            <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50 dark:border-neutral-800/50 transition-all duration-300">
                 <div className="w-full max-w-screen-2xl mx-auto">
-                    <Padding className="mx-4 my-3">
+                    <Padding className="mx-4 mt-4 mb-2">
                         <div className="w-full flex justify-between items-center relative">
-                            {/* 左侧：Logo */}
                             <Link aria-label={t('home')} href="/"
                                 className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center hover:opacity-80 transition-opacity">
-                                <img src={process.env.AVATAR} alt="Avatar" className="w-10 h-10 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm" />
-                                <div className="flex flex-col justify-center items-start mx-3">
+                                <img src={process.env.AVATAR} alt="Avatar" className="w-10 h-10 rounded-xl border-2 dark:border-neutral-700" />
+                                <div className="flex flex-col justify-center items-start mx-4">
                                     <p className="text-lg font-bold dark:text-white leading-tight">
                                         {process.env.NAME}
                                     </p>
-                                    <p className="text-xs text-neutral-500 font-medium">
+                                    <p className="text-xs text-neutral-500">
                                         {process.env.DESCRIPTION}
                                     </p>
                                 </div>
                             </Link>
-
-                            {/* 中间：导航栏 */}
-                            <div className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex flex-row justify-center items-center">
-                                <div className="flex flex-row items-center bg-white dark:bg-neutral-800 t-primary rounded-full px-1 py-1 shadow-lg shadow-neutral-200/50 dark:shadow-none border border-neutral-100 dark:border-neutral-700">
+                            <div
+                                className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex flex-row justify-center items-center">
+                                {/* 修改点 2: 中间胶囊导航条
+                                   - 原来: shadow-xl shadow-light
+                                   - 现在: shadow-2xl shadow-neutral-400/20 ring-1 ring-black/5
+                                   作用: 增强悬浮感的阴影
+                                */}
+                                <div
+                                    className="flex flex-row items-center bg-w t-primary rounded-full px-2 py-1 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800">
                                     <Link aria-label={t('home')} href="/"
-                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-1 pl-1 pr-3">
+                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2 pl-2">
                                         <img src={process.env.AVATAR} alt="Avatar"
-                                            className="w-8 h-8 rounded-full border border-neutral-200" />
+                                            className="w-8 h-8 rounded-full border-2" />
                                         <div className="flex flex-col justify-center items-start mx-2">
                                             <p className="text-sm font-bold truncate max-w-[100px]">
                                                 {process.env.NAME}
                                             </p>
                                         </div>
                                     </Link>
-
                                     <NavBar menu={false} />
                                     {children}
                                     <Menu />
                                 </div>
                             </div>
-
-                            {/* 右侧：功能按钮 */}
-                            <div className="ml-auto hidden opacity-0 md:opacity-100 duration-300 md:flex flex-row items-center space-x-3">
+                            <div className="ml-auto hidden opacity-0 md:opacity-100 duration-300 md:flex flex-row items-center space-x-2">
                                 <SearchButton />
                                 <LanguageSwitch />
                                 <UserAvatar profile={profile} />
@@ -90,9 +73,10 @@ export function Header({ children }: { children?: React.ReactNode }) {
                     </Padding>
                 </div>
             </div>
+            {/* 占位符增加高度，防止内容被遮挡 */}
             <div className="h-24"></div>
         </>
-    );
+    ), [profile, children])
 }
 
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
@@ -107,7 +91,7 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
         <>
             {when &&
                 <Link href={href}
-                    className={`${menu ? "" : "hidden"} md:block cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700/50 rounded-full duration-200 px-4 py-2 text-sm font-medium ${selected ? "text-theme bg-neutral-50 dark:bg-neutral-700/30" : "text-neutral-600 dark:text-neutral-300"}`}
+                    className={`${menu ? "" : "hidden"} md:block cursor-pointer hover:text-theme hover:bg-neutral-100 dark:hover:bg-neutral-700/50 rounded-full duration-300 px-3 py-2 mx-1 text-sm font-medium ${selected ? "text-theme bg-neutral-50 dark:bg-neutral-700/30" : "dark:text-white"}`}
                     state={{ animate: true }}
                     onClick={onClick}
                 >
@@ -127,14 +111,15 @@ function Menu() {
     }
 
     return (
-        <div className="visible md:hidden flex flex-row items-center ml-2">
+        <div className="visible md:hidden flex flex-row items-center ml-2 mr-1">
             <Popup
                 arrow={false}
-                trigger={
+                trigger={<div>
                     <button onClick={() => setOpen(true)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
+                        className="w-9 h-9 rounded-full flex flex-row items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
                         <i className="ri-menu-line ri-lg" />
                     </button>
+                </div>
                 }
                 position="bottom right"
                 open={isOpen}
@@ -145,15 +130,13 @@ function Menu() {
                 closeOnEscape
                 overlayStyle={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(2px)" }}
             >
-                <div className="flex flex-col bg-white dark:bg-neutral-800 rounded-2xl p-4 mt-4 w-[60vw] shadow-2xl border border-neutral-100 dark:border-neutral-700">
-                    <div className="flex flex-row justify-end space-x-3 mb-4">
+                <div className="flex flex-col bg-w rounded-xl p-4 mt-4 w-[60vw] shadow-2xl border border-neutral-100 dark:border-neutral-700">
+                    <div className="flex flex-row justify-end space-x-2 mb-2">
                         <SearchButton onClose={onClose} />
                         <LanguageSwitch />
                         <UserAvatar profile={profile} />
                     </div>
-                    <div className="flex flex-col space-y-1">
-                         <NavBar menu={true} onClick={onClose} />
-                    </div>
+                    <NavBar menu={true} onClick={onClose} />
                 </div>
             </Popup>
         </div>
@@ -164,8 +147,7 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     const profile = useContext(ProfileContext);
     const [location] = useLocation();
     const { t } = useTranslation()
-    const containerClass = menu ? "flex flex-col space-y-1 w-full" : "flex flex-row items-center space-x-1";
-
+    const containerClass = menu ? "flex flex-col space-y-1 w-full" : "flex flex-row items-center";
     return (
         <div className={containerClass}>
             <NavItem menu={menu} onClick={onClick} title={t('article.title')}
@@ -184,8 +166,6 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     )
 }
 
-const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-300 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors shadow-sm";
-
 function LanguageSwitch({ className }: { className?: string }) {
     const { i18n } = useTranslation()
     const label = 'Languages'
@@ -198,22 +178,21 @@ function LanguageSwitch({ className }: { className?: string }) {
     return (
         <div className={className + " flex flex-row items-center"}>
             <Popup trigger={
-                <button title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+                <button title={label} aria-label={label}
+                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button w-9 h-9">
                     <i className="ri-translate-2"></i>
                 </button>
             }
                 position="bottom right"
                 arrow={false}
                 closeOnDocumentClick
-                contentStyle={{ padding: '0px', border: 'none', borderRadius: '12px', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
             >
-                <div className="flex flex-col bg-white dark:bg-neutral-800 border border-neutral-100 dark:border-neutral-700 rounded-xl overflow-hidden min-w-[120px]">
-                    <p className='px-4 py-2 text-xs font-bold text-neutral-400 uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-700'>
-                        Languages
+                <div className="border-card shadow-lg">
+                    <p className='font-bold t-primary px-2 py-1 border-b text-xs text-neutral-400'>
+                        LANGUAGES
                     </p>
                     {languages.map(({ code, name }) => (
-                        <button key={code} onClick={() => i18n.changeLanguage(code)}
-                            className="px-4 py-2 text-sm text-left hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors dark:text-neutral-200">
+                        <button key={code} onClick={() => i18n.changeLanguage(code)} className="w-full text-left px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-700">
                             {name}
                         </button>
                     ))}
@@ -240,15 +219,37 @@ function SearchButton({ className, onClose }: { className?: string, onClose?: ()
             setLocation(`/search/${key}`)
     }
     return (<div className={className + " flex flex-row items-center"}>
-        <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+        <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
+            className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button w-9 h-9">
             <i className="ri-search-line"></i>
         </button>
         <ReactModal
             isOpen={isOpened}
-            style={MODAL_STYLE}
+            style={{
+                content: {
+                    top: "20%",
+                    left: "50%",
+                    right: "auto",
+                    bottom: "auto",
+                    marginRight: "-50%",
+                    transform: "translate(-50%, -50%)",
+                    padding: "0",
+                    border: "none",
+                    borderRadius: "16px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    background: "none",
+                },
+                overlay: {
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    zIndex: 1000,
+                },
+            }}
             onRequestClose={() => setIsOpened(false)}
         >
-            <div className="bg-white dark:bg-neutral-900 w-full md:w-[500px] flex flex-row items-center justify-between p-4 space-x-4 rounded-2xl shadow-2xl border border-neutral-100 dark:border-neutral-700">
+            <div className="bg-w w-full md:w-[500px] flex flex-row items-center justify-between p-4 space-x-4 shadow-2xl rounded-2xl">
                 <Input value={value} setValue={setValue} placeholder={t('article.search.placeholder')}
                     autofocus
                     onSubmit={onSearch} />
@@ -259,38 +260,33 @@ function SearchButton({ className, onClose }: { className?: string, onClose?: ()
     )
 }
 
-// 已完全重构，确保不会报错
+
 function UserAvatar({ className, profile, onClose }: { className?: string, profile?: Profile, onClose?: () => void }) {
-    const { t } = useTranslation();
-    const { LoginModal, setIsOpened } = useLoginModal(onClose);
-    const label = t('github_login');
+    const { t } = useTranslation()
+    const { LoginModal, setIsOpened } = useLoginModal(onClose)
+    const label = t('github_login')
     const config = useContext(ClientConfigContext);
 
-    // 将判断逻辑移到 JSX 之外，避免 TSX 解析错误
-    const loginEnabled = config.get<boolean>('login.enabled');
-
-    if (!loginEnabled) {
-        return null;
-    }
 
     return (
-        <div className={className + " flex flex-row items-center"}>
-            {profile?.avatar ? (
-                <div className="w-9 h-9 relative group cursor-pointer">
-                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-600 shadow-sm" />
-                    <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/50 opacity-0 group-hover:opacity-100 duration-300 flex items-center justify-center">
+        <> {config.get<boolean>('login.enabled') && <div className={className + " flex flex-row items-center"}>
+            {profile?.avatar ? <>
+                <div className="w-9 h-9 relative group">
+                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border cursor-pointer" />
+                    <div className="z-50 absolute left-0 top-0 w-9 h-9 flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300 bg-black/50 rounded-full cursor-pointer">
                         <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
-                            removeCookie("token");
-                            window.location.reload();
+                            removeCookie("token")
+                            window.location.reload()
                         }} hover={false} className="text-white" />
                     </div>
                 </div>
-            ) : (
-                <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+            </> : <>
+                <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
+                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button w-9 h-9">
                     <i className="ri-user-received-line"></i>
                 </button>
-            )}
+            </>}
             <LoginModal />
         </div>
-    );
+        }</>)
 }
