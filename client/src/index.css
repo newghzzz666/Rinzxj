@@ -1,44 +1,66 @@
-/* 1. 引入 Inter 字体 */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  // 1. 保持原版的 selector 模式，确保日夜切换功能正常
+  darkMode: ['selector', '[data-color-mode="dark"]'],
+  theme: {
+    extend: {
+      // 2. 注入 Inter 字体
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      // 3. 颜色系统大换血
+      colors: {
+        // --- 主题色：将原本的粉色替换为“活力橘” ---
+        'theme': '#FF4500',        
+        'theme-hover': '#FF6347',  
+        'theme-active': '#CC3700', 
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* 2. 定义 CSS 变量 */
-:root {
-  --bg-primary: #fafafa;
-  --text-primary: #171717;
-}
-
-.dark {
-  /* 使用刚才在 tailwind.config.ts 里定义的 black-950 */
-  --bg-primary: #050505; 
-  --text-primary: #e5e5e5;
-}
-
-/* 3. 应用全局样式 */
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* 增加全局过渡，切换黑白模式更丝滑 */
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* 4. 优化滚动条样式 */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  @apply bg-neutral-300 dark:bg-neutral-800 rounded-full;
-}
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-orange-500; /* 悬停变橘色 */
+        // --- 背景色：使用更高级的“深邃黑” ---
+        'background': {
+          'light': '#fafafa', // 浅色背景
+          'dark': '#050505',  // 深色背景：Obsidian 黑 (原版 #1c1c1e -> #050505)
+        },
+        
+        // --- 补充颜色变量 (Header 组件需要用到) ---
+        'dark': "#121212", 
+        'black': {
+          DEFAULT: '#000000',
+          900: '#1a1a1a',
+          950: '#050505', 
+        },
+        'orange': {
+          500: '#FF4500',
+        }
+      },
+      // 4. 保持原版的过渡属性
+      transitionProperty: {
+        'height': 'height',
+        'width': 'width',
+        'spacing': 'margin, padding',
+      },
+      // 5. 注入新动画 (用于 Header)
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.5s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(20px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        }
+      }
+    },
+  },
+  // 6. 必须保留 typography 插件，否则文章排版会乱
+  plugins: [
+    require('@tailwindcss/typography'),
+  ],
 }
