@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"; // 移除了不必要的 useMemo
+import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -176,7 +176,6 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     const profile = useContext(ProfileContext);
     const [location] = useLocation();
     const { t } = useTranslation()
-    // 为菜单项增加样式类，区分移动端菜单和桌面端
     const containerClass = menu ? "flex flex-col space-y-1 w-full" : "flex flex-row items-center space-x-1";
 
     return (
@@ -197,7 +196,6 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     )
 }
 
-// 通用的按钮样式，用于统一 Search, Language, Avatar 按钮
 const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-300 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors shadow-sm";
 
 function LanguageSwitch({ className }: { className?: string }) {
@@ -292,7 +290,7 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
                         }} hover={false} className="text-white" />
                     </div>
                 </div>
-            </*> : <>
+            </> : <>
                 <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
                     <i className="ri-user-received-line"></i>
                 </button>
