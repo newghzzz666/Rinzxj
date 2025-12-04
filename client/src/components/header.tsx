@@ -19,7 +19,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return useMemo(() => (
         <>
-            {/* UI 修改：增加 backdrop-blur-md (毛玻璃), bg-white/80 (半透明), shadow-sm (阴影), border-b (底边框) */}
+            {/* 修复版 Header：增加了毛玻璃(backdrop-blur)和阴影(shadow-sm) */}
             <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50 dark:border-neutral-800/50 transition-all duration-300">
                 <div className="w-full">
                     <Padding className="mx-4 mt-4 mb-2">
@@ -38,7 +38,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                             </Link>
                             <div
                                 className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
-                                {/* UI 修改：中间菜单增强阴影 shadow-xl，增加背景色 */}
+                                {/* 中间菜单：增加了 shadow-xl 阴影和背景色 */}
                                 <div
                                     className="flex flex-row items-center bg-w t-primary rounded-full px-2 shadow-xl border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800">
                                     <Link aria-label={t('home')} href="/"
@@ -68,7 +68,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                     </Padding>
                 </div>
             </div>
-            {/* 占位符：防止内容被固定头部遮挡 */}
+            {/* 占位符：防止内容被顶部遮挡 */}
             <div className="h-24"></div>
         </>
     ), [profile, children])
