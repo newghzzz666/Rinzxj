@@ -1,19 +1,19 @@
-/** @type {import('tailwindcss').Config} */
+import type { Config } from 'tailwindcss'
+
 export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // 确保深色模式由 class 控制
+  darkMode: 'class',
   theme: {
     extend: {
-      // 扩展字体库
+      // 1. 设置 Inter 为默认无衬线字体
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'], // 将 Inter 设为默认 sans 字体
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
-      // 扩展颜色库
+      // 2. 扩展颜色库：定义高级黑和橘色
       colors: {
-        // 您可以自定义一个 "black" 变量，方便以后统一调用
         black: {
           DEFAULT: '#000000',
           50: '#f6f6f6',
@@ -26,14 +26,13 @@ export default {
           700: '#4f4f4f',
           800: '#454545',
           900: '#3d3d3d',
-          950: '#050505', // 这里定义了您想要的高级黑
+          950: '#050505', // 核心：Obsidian 深邃黑
         },
-        // 确保橘红色可以用
         orange: {
-          500: '#FF4500', // 主橘色
+          500: '#FF4500', // 核心：活力橘
         }
       },
-      // 自定义动画
+      // 3. 定义丝滑动画
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
         'slide-up': 'slideUp 0.5s ease-out',
@@ -51,4 +50,4 @@ export default {
     },
   },
   plugins: [],
-}
+} satisfies Config
