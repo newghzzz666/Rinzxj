@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import React, { useContext, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -40,7 +40,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
-    return (
+    return useMemo(() => (
         <>
             {/* Header 容器 */}
             <div className="fixed z-50 transition-all duration-300
@@ -92,7 +92,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
             {/* 占位符 */}
             <div className="h-28"></div>
         </>
-    );
+    ), [profile, children]);
 }
 
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
@@ -263,7 +263,7 @@ function SearchButton({ className, onClose, mobile }: { className?: string, onCl
 
     if (mobile) {
         return (
-            <>
+            <div className="w-full">
                 <button onClick={() => setIsOpened(true)} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
                     <i className="ri-search-line mr-1"></i> Search
                 </button>
@@ -279,7 +279,7 @@ function SearchButton({ className, onClose, mobile }: { className?: string, onCl
                         <Button title="Go" onClick={onSearch} />
                     </div>
                 </ReactModal>
-            </>
+            </div>
         )
     }
 
