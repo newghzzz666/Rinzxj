@@ -43,6 +43,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
+    // 修复：移除了 useMemo，直接返回 JSX，避免了缺少 import 的错误，代码更稳健
     return (
         <>
             {/* Header 容器 */}
@@ -197,6 +198,8 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     )
 }
 
+const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-all duration-200 shadow-sm active:scale-90";
+
 function LanguageSwitch({ className, mobile }: { className?: string, mobile?: boolean }) {
     const { i18n } = useTranslation()
     const label = 'Languages'
@@ -311,7 +314,6 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     const label = t('github_login')
     const config = useContext(ClientConfigContext);
 
-    // 安全获取配置
     const loginEnabled = config.get('login.enabled') as boolean;
 
     if (!loginEnabled) {
