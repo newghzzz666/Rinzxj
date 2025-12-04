@@ -262,7 +262,6 @@ function SearchButton({ className, onClose, mobile }: { className?: string, onCl
     }
 
     if (mobile) {
-        // 核心修复点：将 ReactModal 移出 button 标签，避免 DOM 嵌套错误
         return (
             <>
                 <button onClick={() => setIsOpened(true)} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
@@ -317,23 +316,31 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
         return null;
     }
 
+    // 重构：不使用复杂的 JSX 嵌套和三元运算符，避免 Fragment 解析错误
+    let avatarContent;
+    if (profile?.avatar) {
+        avatarContent = (
+            <div className="w-9 h-9 relative group cursor-pointer ml-1">
+                <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 md:group-hover:scale-105 active:scale-95" />
+                <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 md:group-hover:opacity-100 duration-200 flex items-center justify-center">
+                    <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
+                        removeCookie("token")
+                        window.location.reload()
+                    }} hover={false} className="text-white scale-90" />
+                </div>
+            </div>
+        );
+    } else {
+        avatarContent = (
+            <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+                <i className="ri-user-received-line"></i>
+            </button>
+        );
+    }
+
     return (
         <div className={className + " flex flex-row items-center"}>
-            {profile?.avatar ? <>
-                <div className="w-9 h-9 relative group cursor-pointer ml-1">
-                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 md:group-hover:scale-105 active:scale-95" />
-                    <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 md:group-hover:opacity-100 duration-200 flex items-center justify-center">
-                        <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
-                            removeCookie("token")
-                            window.location.reload()
-                        }} hover={false} className="text-white scale-90" />
-                    </div>
-                </div>
-            </> : <>
-                <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
-                    <i className="ri-user-received-line"></i>
-                </button>
-            </>}
+            {avatarContent}
             <LoginModal />
         </div>
     )
