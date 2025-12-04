@@ -104,7 +104,6 @@ export function Header({ children }: { children?: React.ReactNode }) {
     );
 }
 
-// 核心修改：NavItem (菜单项)
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
     title: string,
     selected: boolean,
@@ -117,16 +116,6 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
         <>
             {when &&
                 <Link href={href}
-                    /* 修改解析：
-                       1. duration-300 ease-out transform-gpu: 保证动画丝滑且不卡顿
-                       2. hover:scale-110: 鼠标悬停变大 (像头像一样)
-                       3. hover:text-[#FF4500]: 悬停变橘色
-                       4. selected状态: 
-                          - text-[#FF4500]: 文字橘红
-                          - scale-110: 保持放大
-                          - bg-white dark:bg-white/10: 增加背景色
-                          - shadow-[...]: 增加橘色系的柔和阴影，产生立体浮空感
-                    */
                     className={`${menu ? "" : "hidden"} md:block cursor-pointer relative group
                                 px-4 py-2 mx-1 rounded-full text-sm font-bold transition-all duration-300 ease-out transform-gpu
                                 hover:scale-110 hover:text-[#FF4500] hover:bg-white/50 dark:hover:bg-white/5
@@ -137,7 +126,6 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
                     onClick={onClick}
                 >
                     {title}
-                    {/* 已删除下方的小圆点 span */}
                 </Link>}
         </>
     )
@@ -198,8 +186,4 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
                 selected={location === "/" || location.startsWith('/feed')} href="/" />
             <NavItem menu={menu} onClick={onClick} title={t('timeline')} selected={location === "/timeline"} href="/timeline" />
             <NavItem menu={menu} onClick={onClick} title={t('moments.title')} selected={location === "/moments"} href="/moments" />
-            <NavItem menu={menu} onClick={onClick} title={t('hashtags')} selected={location === "/hashtags"} href="/hashtags" />
-            <NavItem menu={menu} onClick={onClick} when={profile?.permission == true} title={t('writing')}
-                selected={location.startsWith("/writing")} href="/writing" />
-            <NavItem menu={menu} onClick={onClick} title={t('friends.title')} selected={location === "/friends"} href="/friends" />
-            <NavItem menu={menu} onClick={onClick} title={t('about.title')} selected={location === "/about"} href="/about" />
+            <NavItem menu={menu} onClick={onClick}
