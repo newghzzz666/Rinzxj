@@ -1,39 +1,37 @@
-/* 1. 引入高级字体 Inter */
+/* 1. 引入 Inter 字体 */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 2. 定义全局变量 */
+/* 2. 定义 CSS 变量 */
 :root {
-  /* 浅色模式背景：并不是纯白，而是极淡的灰，护眼 */
   --bg-primary: #fafafa;
   --text-primary: #171717;
 }
 
-/* 深色模式变量 */
 .dark {
-  /* 核心修改：使用 #050505 (深邃黑) 代替默认的 #000000 或 #1a1a1a */
+  /* 使用刚才在 tailwind.config.ts 里定义的 black-950 */
   --bg-primary: #050505; 
-  /* 文字颜色：稍微降低一点纯白度，减少刺眼感 */
   --text-primary: #e5e5e5;
 }
 
-/* 3. 应用到 Body */
+/* 3. 应用全局样式 */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif; /* 优先使用 Inter */
-  -webkit-font-smoothing: antialiased; /* 让字体在 Mac 上更平滑 */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease; /* 增加转场动画 */
+  /* 增加全局过渡，切换黑白模式更丝滑 */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* 4. 滚动条美化 (Chrome/Edge/Safari) */
+/* 4. 优化滚动条样式 */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -42,5 +40,5 @@ body {
   @apply bg-neutral-300 dark:bg-neutral-800 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-orange-500; /* 悬停时滚动条变橘色 */
+  @apply bg-orange-500; /* 悬停变橘色 */
 }
