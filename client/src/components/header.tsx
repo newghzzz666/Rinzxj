@@ -58,12 +58,10 @@ export function Header({ children }: { children?: React.ReactNode }) {
                         <div className="relative overflow-hidden rounded-full flex-shrink-0">
                             <img src={process.env.AVATAR} alt="Avatar" className="w-9 h-9 md:w-10 md:h-10 border border-neutral-200 dark:border-neutral-800 transition-transform duration-500 md:group-hover:scale-110" />
                         </div>
-                        {/* 修复：移除 hidden，确保手机端也显示文字 */}
                         <div className="flex flex-col justify-center items-start mx-3 overflow-hidden">
                             <p className="text-sm md:text-lg font-black text-neutral-900 dark:text-white leading-tight tracking-tight md:group-hover:text-[#FF4500] transition-colors truncate w-full">
                                 {process.env.NAME}
                             </p>
-                            {/* 修复：移除了 hidden sm:block，现在手机端也会显示描述 */}
                             <p className="text-[10px] md:text-xs text-neutral-500 font-bold uppercase tracking-wider truncate w-full">
                                 {process.env.DESCRIPTION}
                             </p>
@@ -97,7 +95,6 @@ export function Header({ children }: { children?: React.ReactNode }) {
     );
 }
 
-// 下面的代码保持不变，但我还是完整贴出来以防万一
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
     title: string,
     selected: boolean,
@@ -265,9 +262,12 @@ function SearchButton({ className, onClose, mobile }: { className?: string, onCl
     }
 
     if (mobile) {
+        // 修复：将 ReactModal 移出 button，避免 DOM 嵌套错误
         return (
-            <button onClick={() => setIsOpened(true)} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
-                <i className="ri-search-line mr-1"></i> Search
+            <>
+                <button onClick={() => setIsOpened(true)} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
+                    <i className="ri-search-line mr-1"></i> Search
+                </button>
                 <ReactModal
                     isOpen={isOpened}
                     style={MODAL_STYLE}
@@ -280,7 +280,7 @@ function SearchButton({ className, onClose, mobile }: { className?: string, onCl
                         <Button title="Go" onClick={onSearch} />
                     </div>
                 </ReactModal>
-            </button>
+            </>
         )
     }
 
