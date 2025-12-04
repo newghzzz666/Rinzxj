@@ -19,13 +19,13 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return useMemo(() => (
         <>
-            <div className="fixed z-40">
-                <div className="w-screen">
-                    <Padding className="mx-4 mt-4">
-                        <div className="w-full flex justify-between items-center">
+            <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50 dark:border-neutral-800/50 transition-all duration-300">
+                <div className="w-full">
+                    <Padding className="mx-4 mt-4 mb-2">
+                        <div className="w-full flex justify-between items-center relative">
                             <Link aria-label={t('home')} href="/"
-                                className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center">
-                                <img src={process.env.AVATAR} alt="Avatar" className="w-12 h-12 rounded-2xl border-2" />
+                                className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center hover:opacity-80 transition-opacity">
+                                <img src={process.env.AVATAR} alt="Avatar" className="w-12 h-12 rounded-2xl border-2 dark:border-neutral-700" />
                                 <div className="flex flex-col justify-center items-start mx-4">
                                     <p className="text-xl font-bold dark:text-white">
                                         {process.env.NAME}
@@ -38,7 +38,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                             <div
                                 className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
                                 <div
-                                    className="flex flex-row items-center bg-w t-primary rounded-full px-2 shadow-xl shadow-light">
+                                    className="flex flex-row items-center bg-w t-primary rounded-full px-2 shadow-xl border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800">
                                     <Link aria-label={t('home')} href="/"
                                         className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2">
                                         <img src={process.env.AVATAR} alt="Avatar"
@@ -66,7 +66,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                     </Padding>
                 </div>
             </div>
-            <div className="h-20"></div>
+            <div className="h-24"></div>
         </>
     ), [profile, children])
 }
