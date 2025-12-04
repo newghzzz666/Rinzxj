@@ -278,4 +278,33 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     const { t } = useTranslation()
     const { LoginModal, setIsOpened } = useLoginModal(onClose)
     const label = t('github_login')
-    const config =
+    const config = useContext(ClientConfigContext);
+
+    // 修复点：将配置判断逻辑移出 JSX 返回体，避免 <boolean> 导致的语法解析错误
+    const loginEnabled = config.get('login.enabled');
+
+    if (!loginEnabled) {
+        return null;
+    }
+
+    return (
+        <div className={className + " flex flex-row items-center"}>
+            {profile?.avatar ? <>
+                <div className="w-10 h-10 relative group cursor-pointer ml-1">
+                    <img src={profile.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 group-hover:scale-105" />
+                    <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 duration-200 flex items-center justify-center">
+                        <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
+                            removeCookie("token")
+                            window.location.reload()
+                        }} hover={false} className="text-white scale-90" />
+                    </div>
+                </div>
+            </> : <>
+                <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+                    <i className="ri-user-received-line"></i>
+                </button>
+            </>}
+            <LoginModal />
+        </div>
+    )
+}
