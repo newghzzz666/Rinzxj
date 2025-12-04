@@ -1,10 +1,9 @@
-/* 1. 新增：引入 Inter 字体 */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* 1. 移除了外部字体链接，改用系统原生字体栈，速度最快且无需联网加载 */
 
-/* 2. 核心修复：保留原有 base.css 引用，防止样式丢失报错 */
+/* 2. 核心修复：保留原有 base.css 引用 */
 @import "./base.css";
 
-/* cantarell-latin-400-normal */
+/* 保留原有的本地字体定义 (Cantarell) */
 @font-face {
   font-family: "Cantarell";
   font-style: normal;
@@ -19,20 +18,27 @@
 
 body {
   @apply bg-background-light dark:bg-background-dark text-gray-800;
-  /* 3. 修改：将 Inter 设为首选字体，Cantarell 设为备选 */
-  font-family: 'Inter', Cantarell, "Source Han Serif CN VF", sans-serif !important;
-  /* 新增：平滑过渡，让深色模式切换更丝滑 */
+  
+  /* 3. 修改：使用系统字体栈 (System UI) */
+  /* 解释：优先使用 Inter (如果用户本地安装了)，其次是系统默认字体 (San Francisco/Segoe UI/Roboto)，最后回退到原版字体 */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Cantarell", "Source Han Serif CN VF" !important;
+  
+  /* 平滑过渡 */
   transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 textarea:focus {
   outline: none;
 }
 
+/* --- 以下内容完全保留原版 --- */
+
 .wmde-markdown {
   @apply bg-w;
-  font-family: 'Inter', Cantarell, "Source Han Serif CN VF", sans-serif !important;
+  /* Markdown 区域也同步使用系统字体栈 */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif, "Cantarell", "Source Han Serif CN VF" !important;
 }
 
 .w-md-editor {
@@ -213,7 +219,7 @@ a.toc-link {
   @apply bg-theme;
 }
 
-/* 4. 新增：滚动条美化 (放在文件最后) */
+/* 4. 滚动条美化 */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -225,5 +231,5 @@ a.toc-link {
   @apply bg-neutral-300 dark:bg-neutral-800 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-orange-500; /* 悬停变橘色 */
+  @apply bg-orange-500;
 }
