@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -9,9 +9,10 @@ import { Profile, ProfileContext } from "../state/profile";
 import { Button } from "./button";
 import { IconSmall } from "./icon";
 import { Input } from "./input";
+import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
-// 提取 Modal 样式为常量
+// 提取 Modal 样式
 const MODAL_STYLE = {
     content: {
         top: "20%",
@@ -36,13 +37,16 @@ const MODAL_STYLE = {
     },
 };
 
+// 通用按钮样式
+const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-all duration-200 shadow-sm active:scale-90";
+
 export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
     return useMemo(() => (
         <>
-            {/* Header 容器 */}
+            {/* 灵动岛 Header 容器 */}
             <div className="fixed z-50 transition-all duration-300
                           top-3 left-3 right-3 rounded-3xl
                           md:top-6 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-max md:rounded-full
@@ -51,7 +55,6 @@ export function Header({ children }: { children?: React.ReactNode }) {
                           shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                 
                 <div className="px-4 py-3 md:px-6 md:py-2 flex justify-between items-center relative min-w-full md:min-w-[700px]">
-                            
                     {/* 左侧：Logo & 文字 */}
                     <Link aria-label={t('home')} href="/"
                         className="flex flex-row items-center group mr-auto max-w-[60%] md:max-w-none">
@@ -68,7 +71,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                         </div>
                     </Link>
 
-                    {/* 中间：桌面端菜单 (手机端隐藏) */}
+                    {/* 中间：桌面端菜单 */}
                     <div className="hidden md:flex flex-row items-center justify-center absolute left-1/2 -translate-x-1/2">
                         <NavBar menu={false} />
                         {children}
@@ -80,9 +83,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                             <SearchButton />
                             <LanguageSwitch />
                         </div>
-                        
                         <UserAvatar profile={profile} />
-                        
                         <div className="md:hidden">
                             <Menu />
                         </div>
@@ -193,8 +194,6 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
         </div>
     )
 }
-
-const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-all duration-200 shadow-sm active:scale-90";
 
 function LanguageSwitch({ className, mobile }: { className?: string, mobile?: boolean }) {
     const { i18n } = useTranslation()
@@ -310,38 +309,30 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     const label = t('github_login')
     const config = useContext(ClientConfigContext);
 
-    // 修复：使用 as boolean 断言，避免泛型 <boolean> 在 JSX 文件中被误判为标签
+    // 安全获取配置：使用 as boolean 或类型断言
     const loginEnabled = config.get('login.enabled') as boolean;
 
     if (!loginEnabled) {
         return null;
     }
 
-    // 结构优化：将内容提取，避免在 return 中使用复杂的三元运算，防止 Fragment 解析错误
-    let avatarContent;
-    if (profile?.avatar) {
-        avatarContent = (
-            <div className="w-9 h-9 relative group cursor-pointer ml-1">
-                <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 md:group-hover:scale-105 active:scale-95" />
-                <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 md:group-hover:opacity-100 duration-200 flex items-center justify-center">
-                    <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
-                        removeCookie("token")
-                        window.location.reload()
-                    }} hover={false} className="text-white scale-90" />
-                </div>
-            </div>
-        );
-    } else {
-        avatarContent = (
-            <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
-                <i className="ri-user-received-line"></i>
-            </button>
-        );
-    }
-
     return (
         <div className={className + " flex flex-row items-center"}>
-            {avatarContent}
+            {profile?.avatar ? (
+                <div className="w-9 h-9 relative group cursor-pointer ml-1">
+                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 md:group-hover:scale-105 active:scale-95" />
+                    <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 md:group-hover:opacity-100 duration-200 flex items-center justify-center">
+                        <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
+                            removeCookie("token")
+                            window.location.reload()
+                        }} hover={false} className="text-white scale-90" />
+                    </div>
+                </div>
+            ) : (
+                <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+                    <i className="ri-user-received-line"></i>
+                </button>
+            )}
             <LoginModal />
         </div>
     )
