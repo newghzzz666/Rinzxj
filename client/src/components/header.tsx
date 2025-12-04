@@ -19,20 +19,16 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return useMemo(() => (
         <>
-            {/* 修改点 1: 顶层容器
-               - 原来: fixed z-40
-               - 现在: fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50
-               作用: 固定在顶部，添加毛玻璃背景，添加底部细边框和阴影
-            */}
+            {/* UI 修改：增加 backdrop-blur-md (毛玻璃), bg-white/80 (半透明), shadow-sm (阴影), border-b (底边框) */}
             <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50 dark:border-neutral-800/50 transition-all duration-300">
-                <div className="w-full max-w-screen-2xl mx-auto">
+                <div className="w-full">
                     <Padding className="mx-4 mt-4 mb-2">
                         <div className="w-full flex justify-between items-center relative">
                             <Link aria-label={t('home')} href="/"
                                 className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center hover:opacity-80 transition-opacity">
-                                <img src={process.env.AVATAR} alt="Avatar" className="w-10 h-10 rounded-xl border-2 dark:border-neutral-700" />
+                                <img src={process.env.AVATAR} alt="Avatar" className="w-12 h-12 rounded-2xl border-2 dark:border-neutral-700" />
                                 <div className="flex flex-col justify-center items-start mx-4">
-                                    <p className="text-lg font-bold dark:text-white leading-tight">
+                                    <p className="text-xl font-bold dark:text-white">
                                         {process.env.NAME}
                                     </p>
                                     <p className="text-xs text-neutral-500">
@@ -41,21 +37,20 @@ export function Header({ children }: { children?: React.ReactNode }) {
                                 </div>
                             </Link>
                             <div
-                                className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex flex-row justify-center items-center">
-                                {/* 修改点 2: 中间胶囊导航条
-                                   - 原来: shadow-xl shadow-light
-                                   - 现在: shadow-2xl shadow-neutral-400/20 ring-1 ring-black/5
-                                   作用: 增强悬浮感的阴影
-                                */}
+                                className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
+                                {/* UI 修改：中间菜单增强阴影 shadow-xl，增加背景色 */}
                                 <div
-                                    className="flex flex-row items-center bg-w t-primary rounded-full px-2 py-1 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800">
+                                    className="flex flex-row items-center bg-w t-primary rounded-full px-2 shadow-xl border border-neutral-100 dark:border-neutral-700 bg-white dark:bg-neutral-800">
                                     <Link aria-label={t('home')} href="/"
-                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2 pl-2">
+                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2">
                                         <img src={process.env.AVATAR} alt="Avatar"
-                                            className="w-8 h-8 rounded-full border-2" />
+                                            className="w-10 h-10 rounded-full border-2" />
                                         <div className="flex flex-col justify-center items-start mx-2">
-                                            <p className="text-sm font-bold truncate max-w-[100px]">
+                                            <p className="text-sm font-bold">
                                                 {process.env.NAME}
+                                            </p>
+                                            <p className="text-xs text-neutral-500">
+                                                {process.env.DESCRIPTION}
                                             </p>
                                         </div>
                                     </Link>
@@ -73,7 +68,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                     </Padding>
                 </div>
             </div>
-            {/* 占位符增加高度，防止内容被遮挡 */}
+            {/* 占位符：防止内容被固定头部遮挡 */}
             <div className="h-24"></div>
         </>
     ), [profile, children])
@@ -91,7 +86,7 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
         <>
             {when &&
                 <Link href={href}
-                    className={`${menu ? "" : "hidden"} md:block cursor-pointer hover:text-theme hover:bg-neutral-100 dark:hover:bg-neutral-700/50 rounded-full duration-300 px-3 py-2 mx-1 text-sm font-medium ${selected ? "text-theme bg-neutral-50 dark:bg-neutral-700/30" : "dark:text-white"}`}
+                    className={`${menu ? "" : "hidden"} md:block cursor-pointer hover:text-theme duration-300 px-2 py-4 md:p-4 text-sm ${selected ? "text-theme" : "dark:text-white"}`}
                     state={{ animate: true }}
                     onClick={onClick}
                 >
@@ -111,12 +106,12 @@ function Menu() {
     }
 
     return (
-        <div className="visible md:hidden flex flex-row items-center ml-2 mr-1">
+        <div className="visible md:hidden flex flex-row items-center">
             <Popup
                 arrow={false}
                 trigger={<div>
                     <button onClick={() => setOpen(true)}
-                        className="w-9 h-9 rounded-full flex flex-row items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
+                        className="w-10 h-10 rounded-full flex flex-row items-center justify-center">
                         <i className="ri-menu-line ri-lg" />
                     </button>
                 </div>
@@ -128,10 +123,10 @@ function Menu() {
                 onClose={onClose}
                 closeOnDocumentClick
                 closeOnEscape
-                overlayStyle={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(2px)" }}
+                overlayStyle={{ background: "rgba(0,0,0,0.3)" }}
             >
-                <div className="flex flex-col bg-w rounded-xl p-4 mt-4 w-[60vw] shadow-2xl border border-neutral-100 dark:border-neutral-700">
-                    <div className="flex flex-row justify-end space-x-2 mb-2">
+                <div className="flex flex-col bg-w rounded-xl p-2 mt-4 w-[50vw]">
+                    <div className="flex flex-row justify-end space-x-2">
                         <SearchButton onClose={onClose} />
                         <LanguageSwitch />
                         <UserAvatar profile={profile} />
@@ -147,9 +142,8 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     const profile = useContext(ProfileContext);
     const [location] = useLocation();
     const { t } = useTranslation()
-    const containerClass = menu ? "flex flex-col space-y-1 w-full" : "flex flex-row items-center";
     return (
-        <div className={containerClass}>
+        <>
             <NavItem menu={menu} onClick={onClick} title={t('article.title')}
                 selected={location === "/" || location.startsWith('/feed')} href="/" />
             <NavItem menu={menu} onClick={onClick} title={t('timeline')} selected={location === "/timeline"} href="/timeline" />
@@ -162,7 +156,7 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
             <NavItem menu={menu} onClick={onClick} when={profile?.permission == true} title={t('settings.title')}
                 selected={location === "/settings"}
                 href="/settings" />
-        </div>
+        </>
     )
 }
 
@@ -179,7 +173,7 @@ function LanguageSwitch({ className }: { className?: string }) {
         <div className={className + " flex flex-row items-center"}>
             <Popup trigger={
                 <button title={label} aria-label={label}
-                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button w-9 h-9">
+                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button">
                     <i className="ri-translate-2"></i>
                 </button>
             }
@@ -187,12 +181,12 @@ function LanguageSwitch({ className }: { className?: string }) {
                 arrow={false}
                 closeOnDocumentClick
             >
-                <div className="border-card shadow-lg">
-                    <p className='font-bold t-primary px-2 py-1 border-b text-xs text-neutral-400'>
-                        LANGUAGES
+                <div className="border-card">
+                    <p className='font-bold t-primary'>
+                        Languages
                     </p>
                     {languages.map(({ code, name }) => (
-                        <button key={code} onClick={() => i18n.changeLanguage(code)} className="w-full text-left px-2 py-1 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                        <button key={code} onClick={() => i18n.changeLanguage(code)}>
                             {name}
                         </button>
                     ))}
@@ -220,7 +214,7 @@ function SearchButton({ className, onClose }: { className?: string, onClose?: ()
     }
     return (<div className={className + " flex flex-row items-center"}>
         <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
-            className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button w-9 h-9">
+            className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button">
             <i className="ri-search-line"></i>
         </button>
         <ReactModal
@@ -249,7 +243,7 @@ function SearchButton({ className, onClose }: { className?: string, onClose?: ()
             }}
             onRequestClose={() => setIsOpened(false)}
         >
-            <div className="bg-w w-full md:w-[500px] flex flex-row items-center justify-between p-4 space-x-4 shadow-2xl rounded-2xl">
+            <div className="bg-w w-full flex flex-row items-center justify-between p-4 space-x-4">
                 <Input value={value} setValue={setValue} placeholder={t('article.search.placeholder')}
                     autofocus
                     onSubmit={onSearch} />
@@ -271,18 +265,18 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     return (
         <> {config.get<boolean>('login.enabled') && <div className={className + " flex flex-row items-center"}>
             {profile?.avatar ? <>
-                <div className="w-9 h-9 relative group">
-                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border cursor-pointer" />
-                    <div className="z-50 absolute left-0 top-0 w-9 h-9 flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300 bg-black/50 rounded-full cursor-pointer">
+                <div className="w-8 relative">
+                    <img src={profile.avatar} alt="Avatar" className="w-8 h-8 rounded-full border" />
+                    <div className="z-50 absolute left-0 top-0 w-10 h-8 opacity-0 hover:opacity-100 duration-300">
                         <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
                             removeCookie("token")
                             window.location.reload()
-                        }} hover={false} className="text-white" />
+                        }} hover={false} />
                     </div>
                 </div>
             </> : <>
                 <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
-                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button w-9 h-9">
+                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button">
                     <i className="ri-user-received-line"></i>
                 </button>
             </>}
