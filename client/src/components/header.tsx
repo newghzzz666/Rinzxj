@@ -9,11 +9,10 @@ import { Profile, ProfileContext } from "../state/profile";
 import { Button } from "./button";
 import { IconSmall } from "./icon";
 import { Input } from "./input";
-import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
-// 定义主题色样式常量，方便复用
-const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-800 w-10 h-10 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:border-[#FF4500] hover:text-[#FF4500] transition-all duration-300 cursor-pointer";
+// 定义通用按钮样式
+const ICON_BTN_CLASS = "w-9 h-9 rounded-full flex items-center justify-center text-neutral-500 hover:text-white hover:bg-white/10 transition-all duration-200 active:scale-95";
 
 export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
@@ -21,61 +20,67 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return useMemo(() => (
         <>
-            {/* 顶栏容器：极夜黑半透明背景 + 顶部橘红线条 */}
-            <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-xl bg-white/90 dark:bg-[#050505]/80 border-t-2 border-[#FF4500] border-b border-transparent dark:border-white/5 transition-all duration-300">
-                <div className="w-full">
-                    <Padding className="mx-4 mt-3 mb-3">
-                        <div className="w-full flex justify-between items-center relative">
-                            
-                            {/* LOGO 区域 */}
-                            <Link aria-label={t('home')} href="/"
-                                className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center group">
-                                <div className="relative">
-                                    <img src={process.env.AVATAR} alt="Avatar" 
-                                        className="w-10 h-10 rounded-xl border border-neutral-200 dark:border-neutral-800 group-hover:border-[#FF4500] transition-colors duration-300" />
-                                </div>
-                                <div className="flex flex-col justify-center items-start mx-3">
-                                    <p className="text-lg font-black dark:text-white tracking-tight leading-tight group-hover:text-[#FF4500] transition-colors duration-300">
-                                        {process.env.NAME}
-                                    </p>
-                                    <p className="text-xs text-neutral-500 font-medium">
-                                        {process.env.DESCRIPTION}
-                                    </p>
-                                </div>
-                            </Link>
-                            
-                            {/* 中间导航区：无框悬浮设计 */}
-                            <div className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
-                                <div className="flex flex-row items-center justify-center">
-                                    {/* 移动端 Logo */}
-                                    <Link aria-label={t('home')} href="/"
-                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2 pr-4">
-                                        <img src={process.env.AVATAR} alt="Avatar"
-                                            className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-800" />
-                                    </Link>
-
-                                    <NavBar menu={false} />
-                                    {children}
-                                    <Menu />
-                                </div>
+            {/* 大改动：Header 容器 
+                1. md:top-6: 电脑端距离顶部有 24px 间距 (悬浮感)
+                2. md:w-auto: 电脑端宽度自适应
+                3. md:rounded-full: 电脑端是大圆角胶囊
+                4. top-0 w-full: 手机端依然是吸顶通栏
+            */}
+            <div className="fixed z-50 left-0 right-0 flex justify-center transition-all duration-500
+                            top-0 w-full 
+                            md:top-6 md:w-auto">
+                
+                <div className="relative group">
+                    {/* 背景与边框层：增加流光溢彩的渐变边框效果 */}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-600 to-purple-600 rounded-none md:rounded-full opacity-30 group-hover:opacity-60 blur transition duration-1000 group-hover:duration-200"></div>
+                    
+                    {/* 核心内容层 */}
+                    <div className="relative flex items-center justify-between px-4 py-2 bg-white/90 dark:bg-[#09090b]/90 backdrop-blur-xl border-b md:border border-white/10 shadow-2xl rounded-none md:rounded-full min-w-[320px] md:min-w-[700px] transition-all duration-300">
+                        
+                        {/* 1. 左侧 Logo */}
+                        <Link aria-label={t('home')} href="/" className="flex items-center gap-3 mr-4 group/logo">
+                            <img src={process.env.AVATAR} alt="Avatar" className="w-9 h-9 rounded-full border-2 border-transparent group-hover/logo:border-orange-500 transition-all duration-300" />
+                            <div className="flex flex-col">
+                                <span className="font-bold text-sm tracking-wide dark:text-white group-hover/logo:text-orange-500 transition-colors">
+                                    {process.env.NAME}
+                                </span>
                             </div>
+                        </Link>
 
-                            {/* 右侧功能区 */}
-                            <div className="ml-auto hidden opacity-0 md:opacity-100 duration-300 md:flex flex-row items-center space-x-3">
+                        {/* 2. 中间菜单 (桌面端显示，移动端隐藏) */}
+                        <div className="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2">
+                            <NavBar menu={false} />
+                            {children}
+                        </div>
+
+                        {/* 3. 右侧功能区 */}
+                        <div className="flex items-center gap-1">
+                            <div className="hidden md:flex items-center gap-1">
                                 <SearchButton />
                                 <LanguageSwitch />
-                                <UserAvatar profile={profile} />
+                            </div>
+                            
+                            {/* 分割线 */}
+                            <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 mx-2 hidden md:block"></div>
+                            
+                            <UserAvatar profile={profile} />
+                            
+                            {/* 移动端菜单按钮 (汉堡包) */}
+                            <div className="md:hidden ml-1">
+                                <Menu />
                             </div>
                         </div>
-                    </Padding>
+                    </div>
                 </div>
             </div>
-            {/* 占位符 */}
-            <div className="h-24"></div>
+
+            {/* 占位符：因为 Header 悬浮了，不需要太大占位，但为了防止遮挡加一点 */}
+            <div className="h-24 md:h-32"></div>
         </>
     ), [profile, children])
 }
 
+// 导航菜单项
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
     title: string,
     selected: boolean,
@@ -88,23 +93,25 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
         <>
             {when &&
                 <Link href={href}
-                    className={`${menu ? "" : "hidden"} md:block cursor-pointer relative group
-                    mx-2 px-3 py-2 text-sm font-bold transition-all duration-300 ease-out transform-gpu
-                    hover:-translate-y-0.5 hover:text-[#FF4500]
+                    className={`${menu ? "block w-full text-left py-3 px-4 rounded-xl hover:bg-neutral-100 dark:hover:bg-white/5" : "hidden md:block"} 
+                    text-sm font-medium transition-all duration-200 px-4 py-1.5 rounded-full relative group
                     ${selected 
-                        ? "text-[#FF4500] drop-shadow-[0_0_8px_rgba(255,69,0,0.4)]" 
-                        : "text-neutral-500 dark:text-neutral-400"}`}
+                        ? "text-orange-500" 
+                        : "text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white"}`}
                     state={{ animate: true }}
                     onClick={onClick}
                 >
                     {title}
-                    {/* 选中时底部的小光点 */}
-                    <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#FF4500] transition-all duration-300 ${selected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}></span>
+                    {/* 桌面端的底部光标动画 */}
+                    {!menu && (
+                        <span className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-orange-500 transition-all duration-300 group-hover:w-1/2 ${selected ? 'w-1/2' : ''}`}></span>
+                    )}
                 </Link>}
         </>
     )
 }
 
+// 移动端折叠菜单
 function Menu() {
     const profile = useContext(ProfileContext);
     const [isOpen, setOpen] = useState(false)
@@ -115,15 +122,13 @@ function Menu() {
     }
 
     return (
-        <div className="visible md:hidden flex flex-row items-center pl-2 ml-2">
+        <div className="flex items-center">
             <Popup
                 arrow={false}
-                trigger={<div>
-                    <button onClick={() => setOpen(true)}
-                        className="w-10 h-10 rounded-full flex flex-row items-center justify-center active:scale-95 transition-transform">
-                        <i className="ri-menu-line ri-lg text-neutral-800 dark:text-white hover:text-[#FF4500]" />
+                trigger={
+                    <button onClick={() => setOpen(true)} className={ICON_BTN_CLASS}>
+                        <i className="ri-menu-4-line ri-lg" />
                     </button>
-                </div>
                 }
                 position="bottom right"
                 open={isOpen}
@@ -132,23 +137,25 @@ function Menu() {
                 onClose={onClose}
                 closeOnDocumentClick
                 closeOnEscape
-                overlayStyle={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(5px)" }}
+                overlayStyle={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }}
             >
-                <div className="flex flex-col bg-white dark:bg-[#0a0a0a] rounded-xl p-5 mt-4 w-[70vw] shadow-2xl border border-neutral-100 dark:border-neutral-800 border-t-4 border-t-[#FF4500]">
-                    <div className="flex flex-row justify-end space-x-4 mb-6">
-                        <SearchButton onClose={onClose} />
-                        <LanguageSwitch />
-                        <UserAvatar profile={profile} />
+                <div className="bg-white dark:bg-[#09090b] w-[80vw] max-w-[300px] p-4 m-4 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 flex flex-col gap-2">
+                    {/* 移动端菜单内部头部 */}
+                    <div className="flex justify-between items-center pb-4 border-b dark:border-white/10 mb-2">
+                        <span className="text-xs font-bold text-neutral-400 uppercase">Menu</span>
+                        <div className="flex gap-2">
+                            <SearchButton />
+                            <LanguageSwitch />
+                        </div>
                     </div>
-                    <div className="flex flex-col space-y-2">
-                        <NavBar menu={true} onClick={onClose} />
-                    </div>
+                    <NavBar menu={true} onClick={onClose} />
                 </div>
             </Popup>
         </div>
     )
 }
 
+// 导航逻辑组件
 function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     const profile = useContext(ProfileContext);
     const [location] = useLocation();
@@ -171,20 +178,19 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     )
 }
 
+// 语言切换
 function LanguageSwitch({ className }: { className?: string }) {
     const { i18n } = useTranslation()
-    const label = 'Languages'
     const languages = [
-        { code: 'en', name: 'English' },
-        { code: 'zh-CN', name: '简体中文' },
-        { code: 'zh-TW', name: '繁體中文' },
-        { code: 'ja', name: '日本語' }
+        { code: 'en', name: 'EN' },
+        { code: 'zh-CN', name: '简' },
+        { code: 'zh-TW', name: '繁' },
+        { code: 'ja', name: 'JP' }
     ]
     return (
-        <div className={className + " flex flex-row items-center"}>
+        <div className={className}>
             <Popup trigger={
-                <button title={label} aria-label={label}
-                    className={ACTION_BTN_CLASS}>
+                <button className={ICON_BTN_CLASS} title="Language">
                     <i className="ri-translate-2"></i>
                 </button>
             }
@@ -193,13 +199,10 @@ function LanguageSwitch({ className }: { className?: string }) {
                 closeOnDocumentClick
                 contentStyle={{ padding: '0px', border: 'none' }}
             >
-                <div className="flex flex-col bg-white dark:bg-[#0a0a0a] border border-neutral-100 dark:border-neutral-800 rounded-xl overflow-hidden shadow-xl min-w-[140px] mt-2">
-                    <p className='px-4 py-3 text-xs font-bold text-[#FF4500] uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900'>
-                        Languages
-                    </p>
+                <div className="bg-white dark:bg-[#09090b] border dark:border-white/10 rounded-xl shadow-xl overflow-hidden min-w-[80px] mt-2 p-1">
                     {languages.map(({ code, name }) => (
                         <button key={code} onClick={() => i18n.changeLanguage(code)} 
-                            className="w-full text-left px-4 py-3 text-sm text-neutral-600 dark:text-neutral-300 hover:bg-[#FF4500]/10 hover:text-[#FF4500] transition-colors">
+                            className="w-full text-center py-2 text-sm font-medium rounded-lg hover:bg-neutral-100 dark:hover:bg-white/10 dark:text-neutral-300">
                             {name}
                         </button>
                     ))}
@@ -209,98 +212,83 @@ function LanguageSwitch({ className }: { className?: string }) {
     )
 }
 
+// 搜索按钮
 function SearchButton({ className, onClose }: { className?: string, onClose?: () => void }) {
     const { t } = useTranslation()
     const [isOpened, setIsOpened] = useState(false);
     const [_, setLocation] = useLocation()
     const [value, setValue] = useState('')
-    const label = t('article.search.title')
+    
     const onSearch = () => {
         const key = `${encodeURIComponent(value)}`
         setTimeout(() => {
             setIsOpened(false)
-            if (value.length !== 0)
-                onClose?.()
+            if (value.length !== 0) onClose?.()
         }, 100)
-        if (value.length !== 0)
-            setLocation(`/search/${key}`)
+        if (value.length !== 0) setLocation(`/search/${key}`)
     }
-    return (<div className={className + " flex flex-row items-center"}>
-        <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
-            className={ACTION_BTN_CLASS}>
+
+    return (<div className={className}>
+        <button onClick={() => setIsOpened(true)} className={ICON_BTN_CLASS} title="Search">
             <i className="ri-search-line"></i>
         </button>
         <ReactModal
             isOpen={isOpened}
             style={{
                 content: {
-                    top: "20%",
+                    top: "15%",
                     left: "50%",
-                    right: "auto",
-                    bottom: "auto",
-                    marginRight: "-50%",
-                    transform: "translate(-50%, -50%)",
-                    padding: "0",
+                    transform: "translate(-50%, -15%)",
+                    padding: 0,
                     border: "none",
-                    borderRadius: "20px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    background: "none",
+                    background: "transparent",
+                    overflow: "visible"
                 },
                 overlay: {
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    backdropFilter: "blur(8px)",
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                    backdropFilter: "blur(5px)",
                     zIndex: 1000,
                 },
             }}
             onRequestClose={() => setIsOpened(false)}
         >
-            <div className="bg-white dark:bg-[#0a0a0a] w-full md:w-[600px] flex flex-row items-center justify-between p-6 space-x-4 shadow-2xl rounded-2xl border border-neutral-200 dark:border-neutral-800 border-t-4 border-t-[#FF4500]">
+            <div className="bg-white dark:bg-[#09090b] w-[90vw] md:w-[600px] p-4 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 flex gap-3 items-center animate-in fade-in zoom-in-95 duration-200">
                 <Input value={value} setValue={setValue} placeholder={t('article.search.placeholder')}
-                    autofocus
-                    onSubmit={onSearch} />
-                <Button title={value.length === 0 ? t("close") : label} onClick={onSearch} />
+                    autofocus onSubmit={onSearch} />
+                <Button title={t("close")} onClick={onSearch} />
             </div>
         </ReactModal>
-    </div>
-    )
+    </div>)
 }
 
-
+// 用户头像
 function UserAvatar({ className, profile, onClose }: { className?: string, profile?: Profile, onClose?: () => void }) {
     const { t } = useTranslation()
     const { LoginModal, setIsOpened } = useLoginModal(onClose)
-    const label = t('github_login')
     const config = useContext(ClientConfigContext);
-
-    // 修复点：将配置判断提前，避免在 JSX 中使用 <boolean> 泛型导致解析错误
+    
+    // 提前获取配置，避免JSX错误
     const loginEnabled = config.get<boolean>('login.enabled');
 
-    if (!loginEnabled) {
-        return null;
-    }
+    if (!loginEnabled) return null;
 
     return (
-        <div className={className + " flex flex-row items-center"}>
-            {profile?.avatar ? <>
-                <div className="w-10 h-10 relative group">
-                    <img src={profile.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-800 cursor-pointer transition-transform duration-300 transform-gpu group-hover:scale-110 group-hover:border-[#FF4500]" />
-                    {/* 修复点：移除了 IconSmall 的 className 属性，改用外层 div 控制颜色 */}
-                    <div className="z-50 absolute left-0 top-0 w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300 bg-black/60 rounded-full cursor-pointer backdrop-blur-sm group-hover:scale-110 transition-transform text-[#FF4500]">
+        <div className={className + " flex items-center"}>
+            {profile?.avatar ? (
+                <div className="w-9 h-9 relative group cursor-pointer ml-2">
+                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-700 transition-transform group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-[1px]">
                         <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
                             removeCookie("token")
                             window.location.reload()
-                        }} hover={false} />
+                        }} hover={false} className="text-white scale-75" />
                     </div>
                 </div>
-            </> : <>
-                <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
-                    className={ACTION_BTN_CLASS}>
+            ) : (
+                <button onClick={() => setIsOpened(true)} className={`${ICON_BTN_CLASS} bg-orange-500/10 text-orange-500 hover:bg-orange-500 hover:text-white ml-2`}>
                     <i className="ri-user-received-line"></i>
                 </button>
-            </>}
+            )}
             <LoginModal />
         </div>
     )
