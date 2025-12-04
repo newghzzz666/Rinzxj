@@ -12,7 +12,7 @@ import { Input } from "./input";
 import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
-// 提取 Modal 样式为常量，避免每次渲染都重新创建对象
+// 提取 Modal 样式为常量
 const MODAL_STYLE = {
     content: {
         top: "20%",
@@ -42,17 +42,11 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return (
         <>
-            {/* 修改点：
-               1. 增加了 backdrop-blur-md (毛玻璃模糊)
-               2. 增加了 bg-white/80 (半透明背景)
-               3. 增加了 shadow-sm (柔和阴影)
-               4. 增加了 border-b (底部细微边框，增强层次感)
-            */}
             <div className="fixed top-0 left-0 right-0 z-40 transition-all duration-300 backdrop-blur-md bg-white/80 dark:bg-neutral-900/80 shadow-sm border-b border-neutral-200/50 dark:border-neutral-800/50">
                 <div className="w-full max-w-screen-2xl mx-auto">
                     <Padding className="mx-4 my-3">
                         <div className="w-full flex justify-between items-center relative">
-                            {/* 左侧：Logo & 描述 (Desktop) */}
+                            {/* 左侧：Logo */}
                             <Link aria-label={t('home')} href="/"
                                 className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center hover:opacity-80 transition-opacity">
                                 <img src={process.env.AVATAR} alt="Avatar" className="w-10 h-10 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm" />
@@ -66,14 +60,9 @@ export function Header({ children }: { children?: React.ReactNode }) {
                                 </div>
                             </Link>
 
-                            {/* 中间：导航栏 (Desktop & Mobile 混合逻辑) */}
+                            {/* 中间：导航栏 */}
                             <div className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex flex-row justify-center items-center">
-                                {/* 修改点：
-                                   优化了中间胶囊导航栏的阴影效果 (shadow-lg) 和边框
-                                */}
                                 <div className="flex flex-row items-center bg-white dark:bg-neutral-800 t-primary rounded-full px-1 py-1 shadow-lg shadow-neutral-200/50 dark:shadow-none border border-neutral-100 dark:border-neutral-700">
-                                    
-                                    {/* 移动端 Logo */}
                                     <Link aria-label={t('home')} href="/"
                                         className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-1 pl-1 pr-3">
                                         <img src={process.env.AVATAR} alt="Avatar"
@@ -101,7 +90,6 @@ export function Header({ children }: { children?: React.ReactNode }) {
                     </Padding>
                 </div>
             </div>
-            {/* 占位符高度调整，防止内容被 Header 遮挡 */}
             <div className="h-24"></div>
         </>
     );
@@ -271,31 +259,38 @@ function SearchButton({ className, onClose }: { className?: string, onClose?: ()
     )
 }
 
-
+// 已完全重构，确保不会报错
 function UserAvatar({ className, profile, onClose }: { className?: string, profile?: Profile, onClose?: () => void }) {
-    const { t } = useTranslation()
-    const { LoginModal, setIsOpened } = useLoginModal(onClose)
-    const label = t('github_login')
+    const { t } = useTranslation();
+    const { LoginModal, setIsOpened } = useLoginModal(onClose);
+    const label = t('github_login');
     const config = useContext(ClientConfigContext);
 
+    // 将判断逻辑移到 JSX 之外，避免 TSX 解析错误
+    const loginEnabled = config.get<boolean>('login.enabled');
+
+    if (!loginEnabled) {
+        return null;
+    }
+
     return (
-        <> {config.get<boolean>('login.enabled') && <div className={className + " flex flex-row items-center"}>
-            {profile?.avatar ? <>
+        <div className={className + " flex flex-row items-center"}>
+            {profile?.avatar ? (
                 <div className="w-9 h-9 relative group cursor-pointer">
                     <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-600 shadow-sm" />
                     <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/50 opacity-0 group-hover:opacity-100 duration-300 flex items-center justify-center">
                         <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
-                            removeCookie("token")
-                            window.location.reload()
+                            removeCookie("token");
+                            window.location.reload();
                         }} hover={false} className="text-white" />
                     </div>
                 </div>
-            </> : <>
+            ) : (
                 <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
                     <i className="ri-user-received-line"></i>
                 </button>
-            </>}
+            )}
             <LoginModal />
         </div>
-        }</>)
+    );
 }
