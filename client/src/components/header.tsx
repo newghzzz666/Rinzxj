@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -9,7 +9,6 @@ import { Profile, ProfileContext } from "../state/profile";
 import { Button } from "./button";
 import { IconSmall } from "./icon";
 import { Input } from "./input";
-import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
 // 提取 Modal 样式为常量
@@ -41,69 +40,64 @@ export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
-    return useMemo(() => (
+    return (
         <>
-            <div className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 
-                          backdrop-blur-xl bg-white/70 dark:bg-[#050505]/70 
-                          border-b border-neutral-200/50 dark:border-white/5 shadow-sm">
-                <div className="w-full max-w-screen-2xl mx-auto">
-                    <Padding className="mx-4 my-2">
-                        <div className="w-full flex justify-between items-center relative">
+            {/* Header 容器 */}
+            <div className="fixed z-50 transition-all duration-300
+                          top-3 left-3 right-3 rounded-3xl
+                          md:top-6 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-max md:rounded-full
+                          backdrop-blur-xl bg-white/80 dark:bg-[#0a0a0a]/80
+                          border border-white/20 dark:border-white/5
+                          shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
+                
+                <div className="px-4 py-3 md:px-6 md:py-2 flex justify-between items-center relative min-w-full md:min-w-[700px]">
                             
-                            {/* 左侧：Logo */}
-                            <Link aria-label={t('home')} href="/"
-                                className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center group">
-                                <div className="relative overflow-hidden rounded-2xl">
-                                    <img src={process.env.AVATAR} alt="Avatar" className="w-11 h-11 border border-neutral-200 dark:border-neutral-800 transition-transform duration-500 group-hover:scale-110" />
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                                </div>
-                                <div className="flex flex-col justify-center items-start mx-3">
-                                    <p className="text-lg font-black dark:text-white leading-tight tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-neutral-800 group-hover:to-neutral-500 dark:group-hover:from-white dark:group-hover:to-neutral-400 transition-all">
-                                        {process.env.NAME}
-                                    </p>
-                                    <p className="text-xs text-neutral-500 font-bold uppercase tracking-wider">
-                                        {process.env.DESCRIPTION}
-                                    </p>
-                                </div>
-                            </Link>
-
-                            {/* 中间：悬浮岛菜单 */}
-                            <div className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex flex-row justify-center items-center">
-                                <div className="flex flex-row items-center px-1.5 py-1.5 rounded-full
-                                              bg-white/50 dark:bg-neutral-900/50 backdrop-blur-md
-                                              border border-white/20 dark:border-white/10
-                                              ring-1 ring-black/5 dark:ring-white/5
-                                              shadow-sm hover:shadow-lg transition-all duration-300">
-                                    
-                                    {/* 移动端 Logo */}
-                                    <Link aria-label={t('home')} href="/"
-                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-1 pl-1 pr-3">
-                                        <img src={process.env.AVATAR} alt="Avatar"
-                                            className="w-9 h-9 rounded-full border border-neutral-200" />
-                                    </Link>
-
-                                    <NavBar menu={false} />
-                                    {children}
-                                    <Menu />
-                                </div>
-                            </div>
-
-                            {/* 右侧：功能按钮 */}
-                            <div className="ml-auto hidden opacity-0 md:opacity-100 duration-300 md:flex flex-row items-center space-x-2">
-                                <SearchButton />
-                                <LanguageSwitch />
-                                <UserAvatar profile={profile} />
-                            </div>
+                    {/* 左侧：Logo & 文字 */}
+                    <Link aria-label={t('home')} href="/"
+                        className="flex flex-row items-center group mr-auto max-w-[60%] md:max-w-none">
+                        <div className="relative overflow-hidden rounded-full flex-shrink-0">
+                            <img src={process.env.AVATAR} alt="Avatar" className="w-9 h-9 md:w-10 md:h-10 border border-neutral-200 dark:border-neutral-800 transition-transform duration-500 md:group-hover:scale-110" />
                         </div>
-                    </Padding>
+                        {/* 修复：移除 hidden，确保手机端也显示文字 */}
+                        <div className="flex flex-col justify-center items-start mx-3 overflow-hidden">
+                            <p className="text-sm md:text-lg font-black text-neutral-900 dark:text-white leading-tight tracking-tight md:group-hover:text-[#FF4500] transition-colors truncate w-full">
+                                {process.env.NAME}
+                            </p>
+                            {/* 修复：移除了 hidden sm:block，现在手机端也会显示描述 */}
+                            <p className="text-[10px] md:text-xs text-neutral-500 font-bold uppercase tracking-wider truncate w-full">
+                                {process.env.DESCRIPTION}
+                            </p>
+                        </div>
+                    </Link>
+
+                    {/* 中间：桌面端菜单 (手机端隐藏) */}
+                    <div className="hidden md:flex flex-row items-center justify-center absolute left-1/2 -translate-x-1/2">
+                        <NavBar menu={false} />
+                        {children}
+                    </div>
+
+                    {/* 右侧：功能按钮 */}
+                    <div className="flex flex-row items-center space-x-2 md:space-x-3 ml-auto flex-shrink-0">
+                        <div className="hidden md:flex items-center space-x-2">
+                            <SearchButton />
+                            <LanguageSwitch />
+                        </div>
+                        
+                        <UserAvatar profile={profile} />
+                        
+                        <div className="md:hidden">
+                            <Menu />
+                        </div>
+                    </div>
                 </div>
             </div>
             {/* 占位符 */}
-            <div className="h-24"></div>
+            <div className="h-28"></div>
         </>
-    ), [profile, children]);
+    );
 }
 
+// 下面的代码保持不变，但我还是完整贴出来以防万一
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
     title: string,
     selected: boolean,
@@ -116,11 +110,12 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
         <>
             {when &&
                 <Link href={href}
-                    className={`${menu ? "" : "hidden"} md:block cursor-pointer relative group
-                                px-4 py-2 mx-1 rounded-full text-sm font-bold transition-all duration-300 ease-out transform-gpu
-                                hover:scale-110 hover:text-[#FF4500] hover:bg-white/50 dark:hover:bg-white/5
+                    className={`${menu ? "w-full text-center py-3 text-base border-b border-neutral-100 dark:border-white/5 last:border-0" : "hidden md:block px-4 py-2 mx-1 rounded-full text-sm"} 
+                                cursor-pointer relative group font-bold transition-all duration-200 ease-out transform-gpu
+                                active:scale-95 md:active:scale-95
+                                md:hover:scale-110 md:hover:text-[#FF4500] md:hover:bg-white/50 md:dark:hover:bg-white/5
                                 ${selected 
-                                    ? "text-[#FF4500] scale-110 bg-white dark:bg-neutral-800 shadow-[0_4px_12px_rgba(255,69,0,0.25)] ring-1 ring-black/5 dark:ring-white/10" 
+                                    ? "text-[#FF4500] md:scale-110 md:bg-white md:dark:bg-neutral-800 md:shadow-sm" 
                                     : "text-neutral-500 dark:text-neutral-400"}`}
                     state={{ animate: true }}
                     onClick={onClick}
@@ -141,13 +136,13 @@ function Menu() {
     }
 
     return (
-        <div className="visible md:hidden flex flex-row items-center ml-2">
+        <div className="flex flex-row items-center ml-1">
             <Popup
                 arrow={false}
                 trigger={
                     <button onClick={() => setOpen(true)}
-                        className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                        <i className="ri-menu-line ri-lg text-neutral-800 dark:text-neutral-200" />
+                        className="w-9 h-9 rounded-full flex items-center justify-center bg-neutral-100 dark:bg-neutral-800 active:scale-90 transition-transform">
+                        <i className="ri-menu-line text-neutral-800 dark:text-neutral-200" />
                     </button>
                 }
                 position="bottom right"
@@ -157,15 +152,19 @@ function Menu() {
                 onClose={onClose}
                 closeOnDocumentClick
                 closeOnEscape
-                overlayStyle={{ background: "rgba(0,0,0,0.3)", backdropFilter: "blur(2px)" }}
+                overlayStyle={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", zIndex: 1000 }}
+                contentStyle={{ width: '90%', maxWidth: '400px', border: 'none', background: 'transparent' }}
             >
-                <div className="flex flex-col bg-white dark:bg-[#121212] rounded-3xl p-5 mt-4 w-[70vw] shadow-2xl border border-neutral-100 dark:border-neutral-800 ring-1 ring-black/5">
-                    <div className="flex flex-row justify-end space-x-3 mb-4">
-                        <SearchButton onClose={onClose} />
-                        <LanguageSwitch />
-                        <UserAvatar profile={profile} />
+                <div className="flex flex-col bg-white dark:bg-[#121212] rounded-[32px] p-2 mt-4 shadow-2xl border border-white/20 dark:border-white/10 ring-1 ring-black/5 animate-in slide-in-from-top-5 duration-300">
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                        <div className="bg-neutral-50 dark:bg-white/5 rounded-2xl p-2 flex justify-center">
+                            <SearchButton mobile />
+                        </div>
+                        <div className="bg-neutral-50 dark:bg-white/5 rounded-2xl p-2 flex justify-center">
+                            <LanguageSwitch mobile />
+                        </div>
                     </div>
-                    <div className="flex flex-col space-y-1">
+                    <div className="flex flex-col bg-neutral-50 dark:bg-white/5 rounded-2xl p-2">
                          <NavBar menu={true} onClick={onClose} />
                     </div>
                 </div>
@@ -178,7 +177,7 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     const profile = useContext(ProfileContext);
     const [location] = useLocation();
     const { t } = useTranslation()
-    const containerClass = menu ? "flex flex-col space-y-1 w-full" : "flex flex-row items-center";
+    const containerClass = menu ? "flex flex-col w-full" : "flex flex-row items-center";
 
     return (
         <div className={containerClass}>
@@ -198,9 +197,9 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     )
 }
 
-const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-10 h-10 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-all duration-200 shadow-sm active:scale-90";
+const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-all duration-200 shadow-sm active:scale-90";
 
-function LanguageSwitch({ className }: { className?: string }) {
+function LanguageSwitch({ className, mobile }: { className?: string, mobile?: boolean }) {
     const { i18n } = useTranslation()
     const label = 'Languages'
     const languages = [
@@ -209,6 +208,17 @@ function LanguageSwitch({ className }: { className?: string }) {
         { code: 'zh-TW', name: '繁體中文' },
         { code: 'ja', name: '日本語' }
     ]
+    
+    if (mobile) {
+        return (
+            <div className="flex flex-row gap-2 items-center justify-center w-full" onClick={(e) => e.stopPropagation()}>
+                 <button onClick={() => i18n.changeLanguage(i18n.language === 'zh-CN' ? 'en' : 'zh-CN')} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
+                    <i className="ri-translate-2 mr-1"></i> {i18n.language === 'zh-CN' ? 'EN' : '中'}
+                 </button>
+            </div>
+        )
+    }
+
     return (
         <div className={className + " flex flex-row items-center"}>
             <Popup trigger={
@@ -237,7 +247,7 @@ function LanguageSwitch({ className }: { className?: string }) {
     )
 }
 
-function SearchButton({ className, onClose }: { className?: string, onClose?: () => void }) {
+function SearchButton({ className, onClose, mobile }: { className?: string, onClose?: () => void, mobile?: boolean }) {
     const { t } = useTranslation()
     const [isOpened, setIsOpened] = useState(false);
     const [_, setLocation] = useLocation()
@@ -253,6 +263,27 @@ function SearchButton({ className, onClose }: { className?: string, onClose?: ()
         if (value.length !== 0)
             setLocation(`/search/${key}`)
     }
+
+    if (mobile) {
+        return (
+            <button onClick={() => setIsOpened(true)} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
+                <i className="ri-search-line mr-1"></i> Search
+                <ReactModal
+                    isOpen={isOpened}
+                    style={MODAL_STYLE}
+                    onRequestClose={() => setIsOpened(false)}
+                >
+                    <div className="bg-white dark:bg-[#121212] w-[90vw] flex flex-row items-center justify-between p-4 space-x-2 rounded-3xl shadow-2xl border border-neutral-100 dark:border-neutral-800">
+                        <Input value={value} setValue={setValue} placeholder={t('article.search.placeholder')}
+                            autofocus
+                            onSubmit={onSearch} />
+                        <Button title="Go" onClick={onSearch} />
+                    </div>
+                </ReactModal>
+            </button>
+        )
+    }
+
     return (<div className={className + " flex flex-row items-center"}>
         <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
             <i className="ri-search-line"></i>
@@ -280,7 +311,6 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     const label = t('github_login')
     const config = useContext(ClientConfigContext);
 
-    // 修复点：将配置判断逻辑移出 JSX 返回体，避免 <boolean> 导致的语法解析错误
     const loginEnabled = config.get('login.enabled');
 
     if (!loginEnabled) {
@@ -290,9 +320,9 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     return (
         <div className={className + " flex flex-row items-center"}>
             {profile?.avatar ? <>
-                <div className="w-10 h-10 relative group cursor-pointer ml-1">
-                    <img src={profile.avatar} alt="Avatar" className="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 group-hover:scale-105" />
-                    <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 duration-200 flex items-center justify-center">
+                <div className="w-9 h-9 relative group cursor-pointer ml-1">
+                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-700 shadow-sm transition-transform duration-300 md:group-hover:scale-105 active:scale-95" />
+                    <div className="z-50 absolute left-0 top-0 w-full h-full rounded-full bg-black/40 backdrop-blur-[1px] opacity-0 md:group-hover:opacity-100 duration-200 flex items-center justify-center">
                         <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
                             removeCookie("token")
                             window.location.reload()
