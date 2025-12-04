@@ -262,7 +262,7 @@ function SearchButton({ className, onClose, mobile }: { className?: string, onCl
     }
 
     if (mobile) {
-        // 修复：将 ReactModal 移出 button，避免 DOM 嵌套错误
+        // 核心修复点：将 ReactModal 移出 button 标签，避免 DOM 嵌套错误
         return (
             <>
                 <button onClick={() => setIsOpened(true)} className="w-full py-2 text-sm font-bold text-neutral-600 dark:text-neutral-300">
