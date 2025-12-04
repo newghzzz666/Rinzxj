@@ -310,13 +310,14 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     const label = t('github_login')
     const config = useContext(ClientConfigContext);
 
-    const loginEnabled = config.get('login.enabled');
+    // 修复：使用 as boolean 断言，避免泛型 <boolean> 在 JSX 文件中被误判为标签
+    const loginEnabled = config.get('login.enabled') as boolean;
 
     if (!loginEnabled) {
         return null;
     }
 
-    // 重构：不使用复杂的 JSX 嵌套和三元运算符，避免 Fragment 解析错误
+    // 结构优化：将内容提取，避免在 return 中使用复杂的三元运算，防止 Fragment 解析错误
     let avatarContent;
     if (profile?.avatar) {
         avatarContent = (
