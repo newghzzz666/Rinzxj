@@ -19,17 +19,15 @@ export function Header({ children }: { children?: React.ReactNode }) {
 
     return useMemo(() => (
         <>
-            {/* 顶栏容器：保持毛玻璃和半透明效果 */}
-            <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/70 dark:bg-[#121212]/70 border-b border-neutral-200/30 dark:border-neutral-800/30 transition-all duration-300">
+            <div className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md bg-white/80 dark:bg-[#121212]/80 border-b border-neutral-200/50 dark:border-neutral-800/50 transition-all duration-300">
                 <div className="w-full">
-                    <Padding className="mx-4 mt-4 mb-2">
+                    <Padding className="mx-4 mt-3 mb-3">
                         <div className="w-full flex justify-between items-center relative">
-                            {/* 左侧 Logo */}
                             <Link aria-label={t('home')} href="/"
                                 className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center hover:opacity-80 transition-opacity">
-                                <img src={process.env.AVATAR} alt="Avatar" className="w-11 h-11 rounded-2xl border border-neutral-200 dark:border-neutral-700 shadow-sm" />
+                                <img src={process.env.AVATAR} alt="Avatar" className="w-10 h-10 rounded-xl border border-neutral-200 dark:border-neutral-700 shadow-sm" />
                                 <div className="flex flex-col justify-center items-start mx-3">
-                                    <p className="text-lg font-bold dark:text-white tracking-tight">
+                                    <p className="text-lg font-bold dark:text-white tracking-tight leading-tight">
                                         {process.env.NAME}
                                     </p>
                                     <p className="text-xs text-neutral-500 font-medium">
@@ -38,23 +36,8 @@ export function Header({ children }: { children?: React.ReactNode }) {
                                 </div>
                             </Link>
                             
-                            {/* 中间菜单容器 */}
-                            <div
-                                className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
-                                {/* UI 修改重点：
-                                    1. shadow-[...] 自定义高强度阴影，增强立体感
-                                    2. hover:scale-[1.02] 鼠标放上去整体微微放大
-                                    3. px-3 py-1.5 调整容器内边距
-                                */}
-                                <div
-                                    className="flex flex-row items-center rounded-full px-3 py-1.5 
-                                    bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-xl
-                                    border border-neutral-200/50 dark:border-neutral-700/50
-                                    shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_15px_40px_rgba(0,0,0,0.6)]
-                                    hover:shadow-[0_15px_40px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.7)]
-                                    hover:scale-[1.01] transition-all duration-300 ease-out">
-                                    
-                                    {/* 移动端显示的 Logo (小屏幕可见) */}
+                            <div className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
+                                <div className="flex flex-row items-center justify-center">
                                     <Link aria-label={t('home')} href="/"
                                         className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2 pr-4">
                                         <img src={process.env.AVATAR} alt="Avatar"
@@ -67,7 +50,6 @@ export function Header({ children }: { children?: React.ReactNode }) {
                                 </div>
                             </div>
 
-                            {/* 右侧功能区 */}
                             <div className="ml-auto hidden opacity-0 md:opacity-100 duration-300 md:flex flex-row items-center space-x-3">
                                 <SearchButton />
                                 <LanguageSwitch />
@@ -77,13 +59,11 @@ export function Header({ children }: { children?: React.ReactNode }) {
                     </Padding>
                 </div>
             </div>
-            {/* 占位符 */}
             <div className="h-24"></div>
         </>
     ), [profile, children])
 }
 
-// 核心修改：NavItem (菜单项)
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
     title: string,
     selected: boolean,
@@ -96,18 +76,12 @@ function NavItem({ menu, title, selected, href, when = true, onClick }: {
         <>
             {when &&
                 <Link href={href}
-                    /* UI 修改细节：
-                       1. mx-1: 增加左右间距，让菜单不挤
-                       2. px-4 py-2: 增加点击区域和视觉留白
-                       3. hover:-translate-y-0.5: 鼠标悬停时向上浮动 0.5个单位
-                       4. hover:bg-neutral-100...: 悬停时的椭圆背景
-                    */
                     className={`${menu ? "" : "hidden"} md:block cursor-pointer relative group
-                    mx-1 px-4 py-2 text-sm font-medium rounded-full transition-all duration-300
-                    hover:bg-neutral-100 dark:hover:bg-white/10 hover:-translate-y-0.5
+                    mx-1 px-4 py-2 text-sm font-bold rounded-full transition-all duration-200 transform-gpu
+                    hover:scale-110 hover:bg-neutral-100 dark:hover:bg-white/10
                     ${selected 
-                        ? "text-black dark:text-white bg-neutral-100 dark:bg-white/10 shadow-sm" 
-                        : "text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white"}`}
+                        ? "text-black dark:text-white scale-105" 
+                        : "text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white"}`}
                     state={{ animate: true }}
                     onClick={onClick}
                 >
@@ -183,7 +157,7 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
     )
 }
 
-const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-white dark:bg-[#1e1e1e] hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all shadow-sm hover:scale-105";
+const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-9 h-9 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-white dark:bg-[#1e1e1e] hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-all shadow-sm hover:scale-110 transform-gpu";
 
 function LanguageSwitch({ className }: { className?: string }) {
     const { i18n } = useTranslation()
@@ -294,8 +268,8 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
         <> {config.get<boolean>('login.enabled') && <div className={className + " flex flex-row items-center"}>
             {profile?.avatar ? <>
                 <div className="w-9 h-9 relative group">
-                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-600 cursor-pointer shadow-sm transition-transform hover:scale-105" />
-                    <div className="z-50 absolute left-0 top-0 w-9 h-9 flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300 bg-black/60 rounded-full cursor-pointer backdrop-blur-sm">
+                    <img src={profile.avatar} alt="Avatar" className="w-9 h-9 rounded-full border border-neutral-200 dark:border-neutral-600 cursor-pointer shadow-sm transition-transform duration-200 transform-gpu hover:scale-110" />
+                    <div className="z-50 absolute left-0 top-0 w-9 h-9 flex items-center justify-center opacity-0 group-hover:opacity-100 duration-300 bg-black/60 rounded-full cursor-pointer backdrop-blur-sm hover:scale-110 transition-transform">
                         <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
                             removeCookie("token")
                             window.location.reload()
