@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -41,7 +41,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
-    return (
+    return useMemo(() => (
         <>
             <div className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 
                           backdrop-blur-xl bg-white/70 dark:bg-[#050505]/70 
@@ -101,7 +101,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
             {/* 占位符 */}
             <div className="h-24"></div>
         </>
-    );
+    ), [profile, children]);
 }
 
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
@@ -186,4 +186,96 @@ function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
                 selected={location === "/" || location.startsWith('/feed')} href="/" />
             <NavItem menu={menu} onClick={onClick} title={t('timeline')} selected={location === "/timeline"} href="/timeline" />
             <NavItem menu={menu} onClick={onClick} title={t('moments.title')} selected={location === "/moments"} href="/moments" />
-            <NavItem menu={menu} onClick={onClick}
+            <NavItem menu={menu} onClick={onClick} title={t('hashtags')} selected={location === "/hashtags"} href="/hashtags" />
+            <NavItem menu={menu} onClick={onClick} when={profile?.permission == true} title={t('writing')}
+                selected={location.startsWith("/writing")} href="/writing" />
+            <NavItem menu={menu} onClick={onClick} title={t('friends.title')} selected={location === "/friends"} href="/friends" />
+            <NavItem menu={menu} onClick={onClick} title={t('about.title')} selected={location === "/about"} href="/about" />
+            <NavItem menu={menu} onClick={onClick} when={profile?.permission == true} title={t('settings.title')}
+                selected={location === "/settings"}
+                href="/settings" />
+        </div>
+    )
+}
+
+const ACTION_BTN_CLASS = "flex rounded-full border border-neutral-200 dark:border-neutral-700 w-10 h-10 items-center justify-center text-neutral-600 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-black dark:hover:text-white transition-all duration-200 shadow-sm active:scale-90";
+
+function LanguageSwitch({ className }: { className?: string }) {
+    const { i18n } = useTranslation()
+    const label = 'Languages'
+    const languages = [
+        { code: 'en', name: 'English' },
+        { code: 'zh-CN', name: '简体中文' },
+        { code: 'zh-TW', name: '繁體中文' },
+        { code: 'ja', name: '日本語' }
+    ]
+    return (
+        <div className={className + " flex flex-row items-center"}>
+            <Popup trigger={
+                <button title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+                    <i className="ri-translate-2"></i>
+                </button>
+            }
+                position="bottom right"
+                arrow={false}
+                closeOnDocumentClick
+                contentStyle={{ padding: '0px', border: 'none', borderRadius: '16px', boxShadow: '0 20px 40px -5px rgba(0, 0, 0, 0.1)' }}
+            >
+                <div className="flex flex-col bg-white dark:bg-[#121212] border border-neutral-100 dark:border-neutral-800 rounded-2xl overflow-hidden min-w-[140px] p-1">
+                    <p className='px-4 py-2 text-xs font-bold text-neutral-400 uppercase tracking-wider mb-1 pl-3'>
+                        Languages
+                    </p>
+                    {languages.map(({ code, name }) => (
+                        <button key={code} onClick={() => i18n.changeLanguage(code)}
+                            className="px-3 py-2 text-sm text-left rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors dark:text-neutral-300 font-medium">
+                            {name}
+                        </button>
+                    ))}
+                </div>
+            </Popup>
+        </div>
+    )
+}
+
+function SearchButton({ className, onClose }: { className?: string, onClose?: () => void }) {
+    const { t } = useTranslation()
+    const [isOpened, setIsOpened] = useState(false);
+    const [_, setLocation] = useLocation()
+    const [value, setValue] = useState('')
+    const label = t('article.search.title')
+    const onSearch = () => {
+        const key = `${encodeURIComponent(value)}`
+        setTimeout(() => {
+            setIsOpened(false)
+            if (value.length !== 0)
+                onClose?.()
+        }, 100)
+        if (value.length !== 0)
+            setLocation(`/search/${key}`)
+    }
+    return (<div className={className + " flex flex-row items-center"}>
+        <button onClick={() => setIsOpened(true)} title={label} aria-label={label} className={ACTION_BTN_CLASS}>
+            <i className="ri-search-line"></i>
+        </button>
+        <ReactModal
+            isOpen={isOpened}
+            style={MODAL_STYLE}
+            onRequestClose={() => setIsOpened(false)}
+        >
+            <div className="bg-white dark:bg-[#121212] w-full md:w-[500px] flex flex-row items-center justify-between p-5 space-x-4 rounded-3xl shadow-2xl border border-neutral-100 dark:border-neutral-800">
+                <Input value={value} setValue={setValue} placeholder={t('article.search.placeholder')}
+                    autofocus
+                    onSubmit={onSearch} />
+                <Button title={value.length === 0 ? t("close") : label} onClick={onSearch} />
+            </div>
+        </ReactModal>
+    </div>
+    )
+}
+
+
+function UserAvatar({ className, profile, onClose }: { className?: string, profile?: Profile, onClose?: () => void }) {
+    const { t } = useTranslation()
+    const { LoginModal, setIsOpened } = useLoginModal(onClose)
+    const label = t('github_login')
+    const config =
