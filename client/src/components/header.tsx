@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -12,282 +12,272 @@ import { Input } from "./input";
 import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
-// --- 样式常量 ---
-const MODAL_STYLE = {
-    content: {
-        top: "20%",
-        left: "50%",
-        right: "auto",
-        bottom: "auto",
-        marginRight: "-50%",
-        transform: "translate(-50%, -50%)",
-        padding: "0",
-        border: "none",
-        borderRadius: "24px",
-        display: "flex",
-        flexDirection: "column" as const,
-        justifyContent: "center",
-        alignItems: "center",
-        background: "none",
-    },
-    overlay: {
-        backgroundColor: "rgba(0, 0, 0, 0.6)",
-        backdropFilter: "blur(4px)",
-        zIndex: 1000,
-    },
-};
 
-const ROUND_BTN_CLASS = "flex shrink-0 w-9 h-9 rounded-full items-center justify-center border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-all active:scale-95 hover:bg-neutral-100 dark:hover:bg-neutral-700";
-
-// --- 主组件 ---
 export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
-    const { t } = useTranslation();
+    const { t } = useTranslation()
 
-    // 修复：直接返回 JSX，移除了导致报错的 useMemo
-    return (
+    return useMemo(() => (
         <>
-            {/* ===========================================================================
-               1. 移动端 Header (md:hidden) - 回归原版：贴顶、通栏、稳健
-               =========================================================================== */}
-            <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-md border-b border-neutral-200 dark:border-white/5 transition-colors duration-300">
-                <Padding className="px-4 py-3">
-                    <div className="flex items-center justify-between">
-                        {/* 移动端左侧 Logo */}
-                        <Link href="/" className="flex items-center gap-3">
-                            <img src={process.env.AVATAR} alt="Avatar" className="w-8 h-8 rounded-full border border-neutral-200 dark:border-neutral-700" />
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold text-neutral-900 dark:text-white leading-none">
-                                    {process.env.NAME}
-                                </span>
+            <div className="fixed z-40">
+                <div className="w-screen">
+                    <Padding className="mx-4 mt-4">
+                        <div className="w-full flex justify-between items-center">
+                            <Link aria-label={t('home')} href="/"
+                                className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center">
+                                <img src={process.env.AVATAR} alt="Avatar" className="w-12 h-12 rounded-2xl border-2" />
+                                <div className="flex flex-col justify-center items-start mx-4">
+                                    <p className="text-xl font-bold dark:text-white">
+                                        {process.env.NAME}
+                                    </p>
+                                    <p className="text-xs text-neutral-500">
+                                        {process.env.DESCRIPTION}
+                                    </p>
+                                </div>
+                            </Link>
+                            <div
+                                className="w-full md:w-max transition-all duration-500 md:absolute md:left-1/2 md:translate-x-[-50%] flex-row justify-center items-center">
+                                <div
+                                    className="flex flex-row items-center bg-w t-primary rounded-full px-2 shadow-xl shadow-light">
+                                    <Link aria-label={t('home')} href="/"
+                                        className="visible opacity-100 md:hidden md:opacity-0 duration-300 mr-auto flex flex-row items-center py-2">
+                                        <img src={process.env.AVATAR} alt="Avatar"
+                                            className="w-10 h-10 rounded-full border-2" />
+                                        <div className="flex flex-col justify-center items-start mx-2">
+                                            <p className="text-sm font-bold">
+                                                {process.env.NAME}
+                                            </p>
+                                            <p className="text-xs text-neutral-500">
+                                                {process.env.DESCRIPTION}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                    <NavBar menu={false} />
+                                    {children}
+                                    <Menu />
+                                </div>
                             </div>
-                        </Link>
-
-                        {/* 移动端右侧：汉堡菜单 */}
-                        <MobileMenu />
-                    </div>
-                </Padding>
-            </div>
-
-            {/* ===========================================================================
-               2. 电脑端 Header (hidden md:flex) - 保持灵动岛：悬浮、高级
-               =========================================================================== */}
-            <div className="hidden md:flex fixed z-50 top-6 left-1/2 -translate-x-1/2 w-auto transition-all duration-300">
-                <div className="flex items-center justify-between px-6 py-3 rounded-full
-                              bg-white/80 dark:bg-[#0a0a0a]/90 backdrop-blur-xl
-                              border border-white/20 dark:border-white/10
-                              shadow-lg shadow-neutral-200/20 dark:shadow-black/40
-                              min-w-[720px]">
-
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 group px-2 shrink-0">
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-neutral-200 dark:border-neutral-800">
-                            <img src={process.env.AVATAR} alt="Avatar" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                            <div className="ml-auto hidden opacity-0 md:opacity-100 duration-300 md:flex flex-row items-center space-x-2">
+                                <SearchButton />
+                                <LanguageSwitch />
+                                <UserAvatar profile={profile} />
+                            </div>
                         </div>
-                        <div className="flex flex-col justify-center overflow-hidden">
-                            <span className="text-base font-bold text-neutral-900 dark:text-white truncate leading-tight group-hover:text-[#FF4500] transition-colors">
-                                {process.env.NAME}
-                            </span>
-                            <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider truncate">
-                                {process.env.DESCRIPTION}
-                            </span>
-                        </div>
-                    </Link>
-
-                    {/* 桌面菜单 */}
-                    <div className="flex items-center gap-1 mx-4">
-                        <NavBarItem href="/" title={t('article.title')} />
-                        <NavBarItem href="/timeline" title={t('timeline')} />
-                        <NavBarItem href="/moments" title={t('moments.title')} />
-                        <NavBarItem href="/friends" title={t('friends.title')} />
-                        <NavBarItem href="/about" title={t('about.title')} />
-                        {children}
-                    </div>
-
-                    {/* 功能区 */}
-                    <div className="flex items-center gap-2 shrink-0">
-                        <SearchButton />
-                        <LanguageSwitch />
-                        <div className="w-px h-4 bg-neutral-200 dark:bg-neutral-800 mx-1"></div>
-                        <UserAvatar profile={profile} />
-                    </div>
+                    </Padding>
                 </div>
             </div>
-
-            {/* 占位符 */}
-            <div className="h-20 md:h-32"></div>
+            <div className="h-20"></div>
         </>
-    );
+    ), [profile, children])
 }
 
-// --- 子组件：桌面端导航项 ---
-function NavBarItem({ href, title, onClick }: { href: string, title: string, onClick?: () => void }) {
-    const [location] = useLocation();
-    const isSelected = href === "/" ? location === "/" : location.startsWith(href);
-
-    return (
-        <Link href={href} onClick={onClick}>
-            <div className={`
-                px-4 py-2 rounded-full text-sm font-bold cursor-pointer transition-all duration-200
-                ${isSelected 
-                    ? "text-[#FF4500] bg-neutral-100 dark:bg-white/10" 
-                    : "text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-white/5"}
-            `}>
-                {title}
-            </div>
-        </Link>
-    );
-}
-
-// --- 子组件：移动端菜单 (Hamburger) ---
-function MobileMenu() {
-    const profile = useContext(ProfileContext);
-    const { t } = useTranslation();
-    const [isOpen, setOpen] = useState(false);
-    const close = () => setOpen(false);
-
-    return (
-        <Popup
-            trigger={
-                <button className={ROUND_BTN_CLASS} onClick={() => setOpen(true)}>
-                    <i className="ri-menu-line"></i>
-                </button>
-            }
-            open={isOpen}
-            onOpen={() => document.body.style.overflow = "hidden"}
-            onClose={() => {
-                document.body.style.overflow = "auto";
-                setOpen(false);
-            }}
-            modal
-            nested
-            overlayStyle={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)", zIndex: 1000 }}
-            contentStyle={{ width: "85%", maxWidth: "300px", border: "none", background: "transparent", padding: 0 }}
-        >
-            <div className="bg-white dark:bg-[#121212] rounded-2xl p-4 shadow-2xl border border-neutral-200 dark:border-neutral-800 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
-                {/* 移动端菜单内容 */}
-                <div className="flex flex-col gap-1">
-                    <div className="px-4 py-2 text-xs font-bold text-neutral-400 uppercase tracking-wider">Navigation</div>
-                    <NavBarItem href="/" title={t('article.title')} onClick={close} />
-                    <NavBarItem href="/timeline" title={t('timeline')} onClick={close} />
-                    <NavBarItem href="/moments" title={t('moments.title')} onClick={close} />
-                    <NavBarItem href="/friends" title={t('friends.title')} onClick={close} />
-                    <NavBarItem href="/about" title={t('about.title')} onClick={close} />
-                    {profile?.permission && (
-                        <>
-                            <div className="h-px bg-neutral-100 dark:bg-neutral-800 my-2 mx-4"></div>
-                            <NavBarItem href="/writing" title={t('writing')} onClick={close} />
-                            <NavBarItem href="/settings" title={t('settings.title')} onClick={close} />
-                        </>
-                    )}
-                </div>
-
-                {/* 移动端功能区 */}
-                <div className="grid grid-cols-3 gap-2 border-t border-neutral-100 dark:border-neutral-800 pt-4">
-                    <div className="flex justify-center"><SearchButton /></div>
-                    <div className="flex justify-center"><LanguageSwitch /></div>
-                    <div className="flex justify-center"><UserAvatar profile={profile} /></div>
-                </div>
-            </div>
-        </Popup>
-    );
-}
-
-// --- 功能组件：搜索 ---
-function SearchButton() {
-    const { t } = useTranslation();
-    const [isOpen, setOpen] = useState(false);
-    const [_, setLocation] = useLocation();
-    const [value, setValue] = useState("");
-
-    const onSearch = () => {
-        if (!value) return;
-        setOpen(false);
-        setLocation(`/search/${encodeURIComponent(value)}`);
-    };
-
+function NavItem({ menu, title, selected, href, when = true, onClick }: {
+    title: string,
+    selected: boolean,
+    href: string,
+    menu?: boolean,
+    when?: boolean,
+    onClick?: () => void
+}) {
     return (
         <>
-            <button className={ROUND_BTN_CLASS} onClick={() => setOpen(true)} title="Search">
-                <i className="ri-search-line"></i>
-            </button>
-            
-            <ReactModal
-                isOpen={isOpen}
-                onRequestClose={() => setOpen(false)}
-                style={MODAL_STYLE}
-            >
-                <div className="bg-white dark:bg-[#121212] w-[90vw] md:w-[500px] p-4 rounded-3xl shadow-2xl border border-neutral-100 dark:border-neutral-800 flex items-center gap-2">
-                    <div className="flex-1">
-                        <Input 
-                            value={value} 
-                            setValue={setValue} 
-                            placeholder={t('article.search.placeholder')}
-                            autofocus
-                            onSubmit={onSearch} 
-                        />
-                    </div>
-                    <div className="shrink-0">
-                        <Button title="Go" onClick={onSearch} />
-                    </div>
-                </div>
-            </ReactModal>
+            {when &&
+                <Link href={href}
+                    className={`${menu ? "" : "hidden"} md:block cursor-pointer hover:text-theme duration-300 px-2 py-4 md:p-4 text-sm ${selected ? "text-theme" : "dark:text-white"}`}
+                    state={{ animate: true }}
+                    onClick={onClick}
+                >
+                    {title}
+                </Link>}
         </>
-    );
+    )
 }
 
-// --- 功能组件：语言切换 ---
-function LanguageSwitch() {
-    const { i18n } = useTranslation();
-    
-    const toggleLanguage = () => {
-        const langs = ['zh-CN', 'en', 'ja', 'zh-TW'];
-        const currentIdx = langs.indexOf(i18n.language) !== -1 ? langs.indexOf(i18n.language) : 0;
-        const nextLang = langs[(currentIdx + 1) % langs.length];
-        i18n.changeLanguage(nextLang);
-    };
+function Menu() {
+    const profile = useContext(ProfileContext);
+    const [isOpen, setOpen] = useState(false)
 
-    return (
-        <button className={ROUND_BTN_CLASS} onClick={toggleLanguage} title="Change Language">
-            <i className="ri-translate-2"></i>
-        </button>
-    );
-}
-
-// --- 功能组件：用户头像 ---
-function UserAvatar({ profile }: { profile?: Profile }) {
-    const { t } = useTranslation();
-    const { LoginModal, setIsOpened } = useLoginModal();
-    const config = useContext(ClientConfigContext);
-    
-    // 安全获取配置
-    const loginEnabled = config.get('login.enabled') as boolean;
-    if (!loginEnabled) return null;
-
-    if (profile?.avatar) {
-        return (
-            <div className="relative group w-9 h-9">
-                <img src={profile.avatar} alt="Avatar" 
-                     className="w-full h-full rounded-full border border-neutral-200 dark:border-neutral-700 cursor-pointer" />
-                
-                {/* 登出遮罩 */}
-                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer backdrop-blur-[1px]"
-                     onClick={() => {
-                         removeCookie("token");
-                         window.location.reload();
-                     }}>
-                    <i className="ri-logout-circle-line text-white text-xs"></i>
-                </div>
-            </div>
-        );
+    function onClose() {
+        document.body.style.overflow = "auto"
+        setOpen(false)
     }
 
     return (
+        <div className="visible md:hidden flex flex-row items-center">
+            <Popup
+                arrow={false}
+                trigger={<div>
+                    <button onClick={() => setOpen(true)}
+                        className="w-10 h-10 rounded-full flex flex-row items-center justify-center">
+                        <i className="ri-menu-line ri-lg" />
+                    </button>
+                </div>
+                }
+                position="bottom right"
+                open={isOpen}
+                nested
+                onOpen={() => document.body.style.overflow = "hidden"}
+                onClose={onClose}
+                closeOnDocumentClick
+                closeOnEscape
+                overlayStyle={{ background: "rgba(0,0,0,0.3)" }}
+            >
+                <div className="flex flex-col bg-w rounded-xl p-2 mt-4 w-[50vw]">
+                    <div className="flex flex-row justify-end space-x-2">
+                        <SearchButton onClose={onClose} />
+                        <LanguageSwitch />
+                        <UserAvatar profile={profile} />
+                    </div>
+                    <NavBar menu={true} onClick={onClose} />
+                </div>
+            </Popup>
+        </div>
+    )
+}
+
+function NavBar({ menu, onClick }: { menu: boolean, onClick?: () => void }) {
+    const profile = useContext(ProfileContext);
+    const [location] = useLocation();
+    const { t } = useTranslation()
+    return (
         <>
-            <button className={ROUND_BTN_CLASS} onClick={() => setIsOpened(true)}>
-                <i className="ri-user-Line"></i>
-            </button>
-            <LoginModal />
+            <NavItem menu={menu} onClick={onClick} title={t('article.title')}
+                selected={location === "/" || location.startsWith('/feed')} href="/" />
+            <NavItem menu={menu} onClick={onClick} title={t('timeline')} selected={location === "/timeline"} href="/timeline" />
+            <NavItem menu={menu} onClick={onClick} title={t('moments.title')} selected={location === "/moments"} href="/moments" />
+            <NavItem menu={menu} onClick={onClick} title={t('hashtags')} selected={location === "/hashtags"} href="/hashtags" />
+            <NavItem menu={menu} onClick={onClick} when={profile?.permission == true} title={t('writing')}
+                selected={location.startsWith("/writing")} href="/writing" />
+            <NavItem menu={menu} onClick={onClick} title={t('friends.title')} selected={location === "/friends"} href="/friends" />
+            <NavItem menu={menu} onClick={onClick} title={t('about.title')} selected={location === "/about"} href="/about" />
+            <NavItem menu={menu} onClick={onClick} when={profile?.permission == true} title={t('settings.title')}
+                selected={location === "/settings"}
+                href="/settings" />
         </>
-    );
+    )
+}
+
+function LanguageSwitch({ className }: { className?: string }) {
+    const { i18n } = useTranslation()
+    const label = 'Languages'
+    const languages = [
+        { code: 'en', name: 'English' },
+        { code: 'zh-CN', name: '简体中文' },
+        { code: 'zh-TW', name: '繁體中文' },
+        { code: 'ja', name: '日本語' }
+    ]
+    return (
+        <div className={className + " flex flex-row items-center"}>
+            <Popup trigger={
+                <button title={label} aria-label={label}
+                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button">
+                    <i className="ri-translate-2"></i>
+                </button>
+            }
+                position="bottom right"
+                arrow={false}
+                closeOnDocumentClick
+            >
+                <div className="border-card">
+                    <p className='font-bold t-primary'>
+                        Languages
+                    </p>
+                    {languages.map(({ code, name }) => (
+                        <button key={code} onClick={() => i18n.changeLanguage(code)}>
+                            {name}
+                        </button>
+                    ))}
+                </div>
+            </Popup>
+        </div>
+    )
+}
+
+function SearchButton({ className, onClose }: { className?: string, onClose?: () => void }) {
+    const { t } = useTranslation()
+    const [isOpened, setIsOpened] = useState(false);
+    const [_, setLocation] = useLocation()
+    const [value, setValue] = useState('')
+    const label = t('article.search.title')
+    const onSearch = () => {
+        const key = `${encodeURIComponent(value)}`
+        setTimeout(() => {
+            setIsOpened(false)
+            if (value.length !== 0)
+                onClose?.()
+        }, 100)
+        if (value.length !== 0)
+            setLocation(`/search/${key}`)
+    }
+    return (<div className={className + " flex flex-row items-center"}>
+        <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
+            className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button">
+            <i className="ri-search-line"></i>
+        </button>
+        <ReactModal
+            isOpen={isOpened}
+            style={{
+                content: {
+                    top: "20%",
+                    left: "50%",
+                    right: "auto",
+                    bottom: "auto",
+                    marginRight: "-50%",
+                    transform: "translate(-50%, -50%)",
+                    padding: "0",
+                    border: "none",
+                    borderRadius: "16px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    background: "none",
+                },
+                overlay: {
+                    backgroundColor: "rgba(0, 0, 0, 0.5)",
+                    zIndex: 1000,
+                },
+            }}
+            onRequestClose={() => setIsOpened(false)}
+        >
+            <div className="bg-w w-full flex flex-row items-center justify-between p-4 space-x-4">
+                <Input value={value} setValue={setValue} placeholder={t('article.search.placeholder')}
+                    autofocus
+                    onSubmit={onSearch} />
+                <Button title={value.length === 0 ? t("close") : label} onClick={onSearch} />
+            </div>
+        </ReactModal>
+    </div>
+    )
+}
+
+
+function UserAvatar({ className, profile, onClose }: { className?: string, profile?: Profile, onClose?: () => void }) {
+    const { t } = useTranslation()
+    const { LoginModal, setIsOpened } = useLoginModal(onClose)
+    const label = t('github_login')
+    const config = useContext(ClientConfigContext);
+
+
+    return (
+        <> {config.get<boolean>('login.enabled') && <div className={className + " flex flex-row items-center"}>
+            {profile?.avatar ? <>
+                <div className="w-8 relative">
+                    <img src={profile.avatar} alt="Avatar" className="w-8 h-8 rounded-full border" />
+                    <div className="z-50 absolute left-0 top-0 w-10 h-8 opacity-0 hover:opacity-100 duration-300">
+                        <IconSmall label={t('logout')} name="ri-logout-circle-line" onClick={() => {
+                            removeCookie("token")
+                            window.location.reload()
+                        }} hover={false} />
+                    </div>
+                </div>
+            </> : <>
+                <button onClick={() => setIsOpened(true)} title={label} aria-label={label}
+                    className="flex rounded-full border dark:border-neutral-600 px-2 bg-w aspect-[1] items-center justify-center t-primary bg-button">
+                    <i className="ri-user-received-line"></i>
+                </button>
+            </>}
+            <LoginModal />
+        </div>
+        }</>)
 }
