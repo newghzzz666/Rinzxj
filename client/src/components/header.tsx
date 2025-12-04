@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ReactModal from "react-modal";
 import Popup from "reactjs-popup";
@@ -9,10 +9,9 @@ import { Profile, ProfileContext } from "../state/profile";
 import { Button } from "./button";
 import { IconSmall } from "./icon";
 import { Input } from "./input";
-import { Padding } from "./padding";
 import { ClientConfigContext } from "../state/config";
 
-// 提取 Modal 样式
+// 提取 Modal 样式为常量
 const MODAL_STYLE = {
     content: {
         top: "20%",
@@ -44,9 +43,9 @@ export function Header({ children }: { children?: React.ReactNode }) {
     const profile = useContext(ProfileContext);
     const { t } = useTranslation();
 
-    return useMemo(() => (
+    return (
         <>
-            {/* 灵动岛 Header 容器 */}
+            {/* Header 容器 */}
             <div className="fixed z-50 transition-all duration-300
                           top-3 left-3 right-3 rounded-3xl
                           md:top-6 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-max md:rounded-full
@@ -55,6 +54,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                           shadow-[0_8px_30px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)]">
                 
                 <div className="px-4 py-3 md:px-6 md:py-2 flex justify-between items-center relative min-w-full md:min-w-[700px]">
+                            
                     {/* 左侧：Logo & 文字 */}
                     <Link aria-label={t('home')} href="/"
                         className="flex flex-row items-center group mr-auto max-w-[60%] md:max-w-none">
@@ -71,7 +71,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                         </div>
                     </Link>
 
-                    {/* 中间：桌面端菜单 */}
+                    {/* 中间：桌面端菜单 (手机端隐藏) */}
                     <div className="hidden md:flex flex-row items-center justify-center absolute left-1/2 -translate-x-1/2">
                         <NavBar menu={false} />
                         {children}
@@ -83,7 +83,9 @@ export function Header({ children }: { children?: React.ReactNode }) {
                             <SearchButton />
                             <LanguageSwitch />
                         </div>
+                        
                         <UserAvatar profile={profile} />
+                        
                         <div className="md:hidden">
                             <Menu />
                         </div>
@@ -93,7 +95,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
             {/* 占位符 */}
             <div className="h-28"></div>
         </>
-    ), [profile, children]);
+    );
 }
 
 function NavItem({ menu, title, selected, href, when = true, onClick }: {
@@ -309,7 +311,7 @@ function UserAvatar({ className, profile, onClose }: { className?: string, profi
     const label = t('github_login')
     const config = useContext(ClientConfigContext);
 
-    // 安全获取配置：使用 as boolean 或类型断言
+    // 安全获取配置
     const loginEnabled = config.get('login.enabled') as boolean;
 
     if (!loginEnabled) {
