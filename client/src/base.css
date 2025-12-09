@@ -63,16 +63,16 @@
     @apply -translate-y-1;
   }
 
-  /* 渐变主题按钮 */
+  /* 渐变主题按钮 - 橘红色 */
   .gradient-theme {
-    background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+    background: linear-gradient(135deg, #ff6b35 0%, #ff8a50 100%);
     @apply text-white;
     @apply transition-all duration-300 ease-out;
     @apply shadow-glow;
   }
 
   .gradient-theme:hover {
-    background: linear-gradient(135deg, #e03d5f 0%, #3651e0 100%);
+    background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%);
     @apply shadow-glow-lg;
     @apply -translate-y-0.5;
   }
@@ -89,5 +89,56 @@
 
   .shadow-theme-glow-lg {
     @apply shadow-glow-lg;
+  }
+
+  /* 导航链接悬浮效果 - 放大1.2倍+立体文字 */
+  .nav-link {
+    @apply transition-all duration-300 ease-out;
+    @apply hover:scale-[1.2] hover:text-theme;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .nav-link:hover {
+    text-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+  }
+
+  /* 头像悬浮放大1.5倍+闪光效果 */
+  .avatar-hover {
+    @apply transition-all duration-300 ease-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-hover:hover {
+    @apply scale-150;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+  }
+
+  .avatar-hover::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent);
+    transition: none;
+  }
+
+  .avatar-hover:hover::after {
+    animation: shine 0.6s ease-out;
+  }
+
+  @keyframes shine {
+    0% {
+      left: -100%;
+    }
+
+    100% {
+      left: 100%;
+    }
   }
 }
