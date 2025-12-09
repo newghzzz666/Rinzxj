@@ -8,10 +8,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        'theme': '#ff6b35',
-        'theme-hover': '#ff5722',
-        'theme-active': '#e64a19',
-        'theme-secondary': '#ff8a50',
+        'theme': '#ff4d2a',
+        'theme-hover': '#e6401f',
+        'theme-active': '#cc3318',
+        'theme-secondary': '#ff6b35',
         'background': {
           'light': '#f5f5f5',
           'dark': '#1c1c1e',
@@ -28,10 +28,12 @@ export default {
         }
       },
       boxShadow: {
-        'glow': '0 8px 32px rgba(255, 107, 53, 0.25)',
-        'glow-lg': '0 12px 40px rgba(255, 107, 53, 0.35)',
+        'glow': '0 8px 32px rgba(255, 77, 42, 0.25)',
+        'glow-lg': '0 12px 40px rgba(255, 77, 42, 0.35)',
         'soft': '0 4px 24px rgba(0, 0, 0, 0.06)',
         'soft-lg': '0 8px 32px rgba(0, 0, 0, 0.08)',
+        'card': '4px 6px 16px rgba(0, 0, 0, 0.1)',
+        'card-hover': '6px 8px 24px rgba(0, 0, 0, 0.15)',
       },
       transitionProperty: {
         'height': 'height',

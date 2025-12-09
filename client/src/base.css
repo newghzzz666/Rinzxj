@@ -53,26 +53,27 @@
 
   .glass-card {
     @apply backdrop-blur-md bg-white/80 dark:bg-dark/80;
-    @apply border border-white/40 dark:border-white/10;
-    @apply shadow-soft dark:shadow-black/20;
+    @apply border border-theme/20 dark:border-theme/15;
+    @apply shadow-card dark:shadow-black/20;
     @apply transition-all duration-300 ease-out;
   }
 
   .glass-card:hover {
-    @apply shadow-soft-lg dark:shadow-black/30;
+    @apply shadow-card-hover dark:shadow-black/30;
+    @apply border-theme/30 dark:border-theme/25;
     @apply -translate-y-1;
   }
 
   /* 渐变主题按钮 - 橘红色 */
   .gradient-theme {
-    background: linear-gradient(135deg, #ff6b35 0%, #ff8a50 100%);
+    background: linear-gradient(135deg, #ff4d2a 0%, #ff6b35 100%);
     @apply text-white;
     @apply transition-all duration-300 ease-out;
     @apply shadow-glow;
   }
 
   .gradient-theme:hover {
-    background: linear-gradient(135deg, #ff5722 0%, #ff6b35 100%);
+    background: linear-gradient(135deg, #e6401f 0%, #ff4d2a 100%);
     @apply shadow-glow-lg;
     @apply -translate-y-0.5;
   }
@@ -99,7 +100,7 @@
   }
 
   .nav-link:hover {
-    text-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+    text-shadow: 0 4px 8px rgba(255, 77, 42, 0.3);
   }
 
   /* 头像悬浮放大1.5倍+闪光效果 */
@@ -111,7 +112,7 @@
 
   .avatar-hover:hover {
     @apply scale-150;
-    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+    box-shadow: 0 0 20px rgba(255, 77, 42, 0.5);
   }
 
   .avatar-hover::after {
