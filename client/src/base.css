@@ -1,44 +1,93 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@layer base {
-    .bg-w {
-      @apply bg-white dark:bg-dark;
-    }
-  
-    .bg-secondary {
-      @apply bg-neutral-100 dark:bg-neutral-700;
-    }
-  
-    .bg-button {
-      @apply hover:bg-neutral-200 dark:hover:bg-neutral-600 active:bg-neutral-300 dark:active:bg-neutral-500;
-    }
 
-    .bg-hover {
-      @apply hover:bg-neutral-200 dark:hover:bg-neutral-600;
-    }
-  
-    .shadow-light {
-      @apply shadow-neutral-200/30 dark:shadow-black/10;
-    }
-  
-    .shadow-deep {
-      @apply shadow-neutral-200/70 dark:shadow-black/30;
-    }
-  
-    .t-primary {
-      @apply text-black dark:text-white;
-    }
-  
-    .t-secondary {
-      @apply text-neutral-500 dark:text-neutral-200;
-    }
-  
-    .wauto {
-      @apply w-full md:w-11/12 lg:w-10/12 xl:w-8/12 2xl:w-6/12 duration-300;
-    }
-  
-    .writeauto {
-      @apply w-full md:w-7/12 lg:w-8/12 duration-300;
-    }
+@layer base {
+  .bg-w {
+    @apply bg-white dark:bg-dark;
   }
+
+  .bg-secondary {
+    @apply bg-neutral-100 dark:bg-neutral-700;
+  }
+
+  .bg-button {
+    @apply transition-all duration-300 ease-out;
+    @apply hover:bg-neutral-200 dark:hover:bg-neutral-600 active:bg-neutral-300 dark:active:bg-neutral-500;
+    @apply hover:shadow-soft hover:-translate-y-0.5;
+  }
+
+  .bg-hover {
+    @apply hover:bg-neutral-200 dark:hover:bg-neutral-600;
+  }
+
+  .shadow-light {
+    @apply shadow-neutral-200/30 dark:shadow-black/10;
+  }
+
+  .shadow-deep {
+    @apply shadow-neutral-200/70 dark:shadow-black/30;
+  }
+
+  .t-primary {
+    @apply text-black dark:text-white;
+  }
+
+  .t-secondary {
+    @apply text-neutral-500 dark:text-neutral-200;
+  }
+
+  .wauto {
+    @apply w-full md:w-11/12 lg:w-10/12 xl:w-8/12 2xl:w-6/12 duration-300;
+  }
+
+  .writeauto {
+    @apply w-full md:w-7/12 lg:w-8/12 duration-300;
+  }
+
+  /* 玻璃拟态效果 */
+  .glass {
+    @apply backdrop-blur-md bg-white/75 dark:bg-dark/75;
+    @apply border border-white/30 dark:border-white/10;
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md bg-white/80 dark:bg-dark/80;
+    @apply border border-white/40 dark:border-white/10;
+    @apply shadow-soft dark:shadow-black/20;
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .glass-card:hover {
+    @apply shadow-soft-lg dark:shadow-black/30;
+    @apply -translate-y-1;
+  }
+
+  /* 渐变主题按钮 */
+  .gradient-theme {
+    background: linear-gradient(135deg, #fc466b 0%, #3f5efb 100%);
+    @apply text-white;
+    @apply transition-all duration-300 ease-out;
+    @apply shadow-glow;
+  }
+
+  .gradient-theme:hover {
+    background: linear-gradient(135deg, #e03d5f 0%, #3651e0 100%);
+    @apply shadow-glow-lg;
+    @apply -translate-y-0.5;
+  }
+
+  .gradient-theme:active {
+    @apply translate-y-0;
+    @apply shadow-glow;
+  }
+
+  /* 发光阴影效果 */
+  .shadow-theme-glow {
+    @apply shadow-glow;
+  }
+
+  .shadow-theme-glow-lg {
+    @apply shadow-glow-lg;
+  }
+}
