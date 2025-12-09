@@ -4,10 +4,15 @@ import Container, { Service } from "typedi";
 import type { DB } from "../_worker";
 import type { Env } from "../db/db";
 import { getDB, getEnv } from "./di";
+import { KVCache } from "./kv-cache";
 import { createS3Client } from "./s3";
 
 // Cache Utils for storing data in memory and persisting to S3
+// With Cloudflare KV as first-level cache for faster reads
 // DO NOT USE THIS TO STORE SENSITIVE DATA
+
+// KV 缓存默认 TTL（秒）
+const KV_DEFAULT_TTL = 3600;
 
 @Service()
 export class CacheImpl {
@@ -18,6 +23,7 @@ export class CacheImpl {
     type: string;
     loaded: boolean = false;
     s3 = createS3Client();
+    kv: KVCache;
 
     constructor(type: string = "cache") {
         this.type = type;
@@ -26,10 +32,14 @@ export class CacheImpl {
         this.cache = new Map<string, any>();
         const slash = this.env.S3_ACCESS_HOST.endsWith('/') ? '' : '/';
         this.cacheUrl = this.env.S3_ACCESS_HOST + slash + path.join(this.env.S3_CACHE_FOLDER || 'cache', `${type}.json`);
+        this.kv = new KVCache(type);
     }
 
+    /**
+     * 从 R2 加载缓存数据到内存
+     */
     async load() {
-        console.log('Cache load', this.cacheUrl);
+        console.log('Cache load from R2:', this.cacheUrl);
         try {
             const response = await fetch(new Request(this.cacheUrl))
             const data = await response.json<any>()
@@ -38,22 +48,46 @@ export class CacheImpl {
             }
             this.loaded = true;
         } catch (e: any) {
-            console.error('Cache load failed');
+            console.error('Cache load from R2 failed');
             console.error(e.message);
         }
     }
+
     async all() {
         if (!this.loaded) {
             await this.load();
         }
         return this.cache;
     }
+
+    /**
+     * 获取缓存值
+     * 优先级：内存缓存 → KV 缓存 → R2 文件
+     */
     async get(key: string) {
+        // 1. 先检查内存缓存
+        if (this.cache.has(key)) {
+            console.log('[Memory Cache] HIT:', key);
+            return this.cache.get(key);
+        }
+
+        // 2. 尝试从 KV 获取
+        if (this.kv.isAvailable()) {
+            const kvValue = await this.kv.get(key);
+            if (kvValue !== null) {
+                // 写入内存缓存
+                this.cache.set(key, kvValue);
+                return kvValue;
+            }
+        }
+
+        // 3. 从 R2 加载
         if (!this.loaded) {
             await this.load();
         }
         return this.cache.get(key);
     }
+
     async getByPrefix(prefix: string): Promise<any[]> {
         if (!this.loaded) {
             await this.load();
@@ -66,6 +100,7 @@ export class CacheImpl {
         }
         return result;
     }
+
     async getBySuffix(suffix: string): Promise<any[]> {
         if (!this.loaded) {
             await this.load();
@@ -78,6 +113,7 @@ export class CacheImpl {
         }
         return result;
     }
+
     async getOrSet<T>(key: string, value: () => Promise<T>) {
         const cached = await this.get(key)
         if (cached !== undefined) {
@@ -93,51 +129,106 @@ export class CacheImpl {
     async getOrDefault<T>(key: string, defaultValue: T) {
         return this.getOrSet(key, async () => defaultValue);
     }
-    
 
+    /**
+     * 设置缓存值
+     * 同时更新：内存缓存 + KV 缓存 + R2 文件
+     */
     async set(key: string, value: any, save: boolean = true) {
         if (!this.loaded)
             await this.load();
+
+        // 更新内存缓存
         this.cache.set(key, value);
+
+        // 异步更新 KV 缓存（不阻塞）
+        if (this.kv.isAvailable()) {
+            this.kv.set(key, value, KV_DEFAULT_TTL).catch(e => {
+                console.error('[KV Cache] Background SET failed:', e.message);
+            });
+        }
+
+        // 持久化到 R2
         if (save) {
             await this.save();
         }
     }
 
+    /**
+     * 删除缓存
+     * 同时删除：内存缓存 + KV 缓存 + R2 文件
+     */
     async delete(key: string, save: boolean = true) {
         if (!this.loaded)
             await this.load();
+
+        // 删除内存缓存
         this.cache.delete(key);
+
+        // 异步删除 KV 缓存
+        if (this.kv.isAvailable()) {
+            this.kv.delete(key).catch(e => {
+                console.error('[KV Cache] Background DELETE failed:', e.message);
+            });
+        }
+
         if (save) {
             await this.save();
         }
     }
 
+    /**
+     * 按前缀删除缓存
+     */
     async deletePrefix(prefix: string) {
+        // 删除内存缓存
         for (let key of this.cache.keys()) {
             console.log('Cache key', key);
             if (key.startsWith(prefix)) {
                 console.log('Cache delete', key);
-                await this.delete(key, false);
+                this.cache.delete(key);
             }
         }
+
+        // 异步删除 KV 缓存
+        if (this.kv.isAvailable()) {
+            this.kv.deleteByPrefix(prefix).catch(e => {
+                console.error('[KV Cache] Background DELETE PREFIX failed:', e.message);
+            });
+        }
+
         await this.save();
     }
+
     async deleteSuffix(suffix: string) {
         for (let key of this.cache.keys()) {
             console.log("Cache key", key);
             if (key.endsWith(suffix)) {
                 console.log("Cache delete", key);
-                await this.delete(key, false);
+                this.cache.delete(key);
             }
         }
-        await this.save();
-    }
-    async clear() {
-        this.cache.clear();
+
+        // KV 不支持后缀删除，跳过
         await this.save();
     }
 
+    async clear() {
+        this.cache.clear();
+
+        // 清除 KV 缓存
+        if (this.kv.isAvailable()) {
+            this.kv.clear().catch(e => {
+                console.error('[KV Cache] Background CLEAR failed:', e.message);
+            });
+        }
+
+        await this.save();
+    }
+
+    /**
+     * 持久化缓存到 R2
+     */
     async save() {
         const cacheKey = path.join(this.env.S3_CACHE_FOLDER, `${this.type}.json`);
         await this.s3.send(new PutObjectCommand({
@@ -145,9 +236,9 @@ export class CacheImpl {
             Key: cacheKey,
             Body: JSON.stringify(Object.fromEntries(this.cache))
         })).then(() => {
-            console.log('Cache saved');
+            console.log('Cache saved to R2');
         }).catch((e: any) => {
-            console.error('Cache save failed')
+            console.error('Cache save to R2 failed')
             console.error(e.message);
         });
     }

@@ -2,6 +2,7 @@ import { drizzle } from 'drizzle-orm/d1';
 
 export interface Env {
     DB: D1Database;
+    CACHE_KV?: KVNamespace;  // Cloudflare KV 缓存绑定（可选）
     RIN_GITHUB_CLIENT_ID: string;
     RIN_GITHUB_CLIENT_SECRET: string;
     GITHUB_CLIENT_ID: string;
