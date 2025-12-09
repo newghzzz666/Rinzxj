@@ -27,7 +27,7 @@ export function Header({ children }: { children?: React.ReactNode }) {
                                 className="hidden opacity-0 md:opacity-100 duration-300 mr-auto md:flex flex-row items-center">
                                 <img src={process.env.AVATAR} alt="Avatar" className="w-12 h-12 rounded-2xl border-2 avatar-hover" />
                                 <div className="flex flex-col justify-center items-start mx-4">
-                                    <p className="text-xl font-bold dark:text-white">
+                                    <p className="text-xl font-bold text-theme">
                                         {process.env.NAME}
                                     </p>
                                     <p className="text-xs text-neutral-500">
